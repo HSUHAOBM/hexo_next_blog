@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/hexo_next_blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/hexo_next_blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/hexo_next_blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/hexo_next_blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/hexo_next_blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hsuhaobm.github.io","root":"/hexo_next_blog/","images":"/hexo_next_blog/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/hexo_next_blog/js/config.js"></script>
+
+    <meta name="description" content="起因使用 selenium時，都必需要先抓對應的 ChromeDriver，然後再開始使用，如果瀏覽器版本和 ChromeDriver不同，會出現錯誤。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker 建置打包 Python + Selenium + ChromeDriver + Chrome">
+<meta property="og:url" content="https://hsuhaobm.github.io/hexo_next_blog/2024/04/01/20240401/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="起因使用 selenium時，都必需要先抓對應的 ChromeDriver，然後再開始使用，如果瀏覽器版本和 ChromeDriver不同，會出現錯誤。">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2024-04-01T07:41:27.000Z">
+<meta property="article:modified_time" content="2024-04-17T05:12:28.378Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Selenium">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hsuhaobm.github.io/hexo_next_blog/2024/04/01/20240401/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://hsuhaobm.github.io/hexo_next_blog/2024/04/01/20240401/","path":"2024/04/01/20240401/","title":"docker 建置打包 Python + Selenium + ChromeDriver + Chrome"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>docker 建置打包 Python + Selenium + ChromeDriver + Chrome | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/hexo_next_blog/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/hexo_next_blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/hexo_next_blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B5%B7%E5%9B%A0"><span class="nav-number">1.</span> <span class="nav-text">起因</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%88%89%E4%BE%8B"><span class="nav-number">2.</span> <span class="nav-text">舉例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#DockerFile"><span class="nav-number">2.1.</span> <span class="nav-text">DockerFile</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E6%B1%BA%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">解決方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%83%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">參考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/hexo_next_blog/archives/">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/hexo_next_blog/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/hexo_next_blog/tags/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://hsuhaobm.github.io/hexo_next_blog/2024/04/01/20240401/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/hexo_next_blog/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="docker 建置打包 Python + Selenium + ChromeDriver + Chrome | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          docker 建置打包 Python + Selenium + ChromeDriver + Chrome
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2024-04-01 15:41:27" itemprop="dateCreated datePublished" datetime="2024-04-01T15:41:27+08:00">2024-04-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新於</span>
+      <time title="修改時間：2024-04-17 13:12:28" itemprop="dateModified" datetime="2024-04-17T13:12:28+08:00">2024-04-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/hexo_next_blog/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/hexo_next_blog/2024/04/01/20240401/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2024/04/01/20240401/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h1><p>使用 selenium時，都必需要先抓對應的 ChromeDriver，<br>然後再開始使用，如果瀏覽器版本和 ChromeDriver不同，會出現錯誤。</p>
+<span id="more"></span>
+
+<h1 id="舉例"><a href="#舉例" class="headerlink" title="舉例"></a>舉例</h1><p>使用在下面 docker file build， google-chrome-stable版本，<br>常常會發生跟抓的 Driver對不上，程式進而會產生下列報錯等等</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">selenium.common.exceptions.SessionNotCreatedException: Message: session not created: Chrome failed to start: exited normally.</span><br></pre></td></tr></table></figure>
+
+<h2 id="DockerFile"><a href="#DockerFile" class="headerlink" title="DockerFile"></a>DockerFile</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FROM python:3.8.10</span><br><span class="line">ENV PYTHONUNBUFFERED 1</span><br><span class="line">RUN mkdir /app</span><br><span class="line">WORKDIR /app</span><br><span class="line"></span><br><span class="line">COPY . /app/</span><br><span class="line"></span><br><span class="line">RUN pip install -r requirements.txt</span><br><span class="line"></span><br><span class="line">RUN apt-get update</span><br><span class="line">RUN apt-get install -y wget</span><br><span class="line">RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \</span><br><span class="line">    &amp;&amp; echo &quot;deb http://dl.google.com/linux/chrome/deb/ stable main&quot; &gt;&gt; /etc/apt/sources.list.d/google.list</span><br><span class="line">RUN apt-get update &amp;&amp; apt-get -y install google-chrome-stable</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="解決方法"><a href="#解決方法" class="headerlink" title="解決方法"></a>解決方法</h1><p>Selenium 升級至 v4.0.0 以上 並搭配 webdriver_manager，<br>就可以不用特地去下載對應的 Driver版本</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 安裝套件</span><br><span class="line">pip install -U selenium</span><br><span class="line">pip install webdriver-manager</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># .py 程式</span><br><span class="line">from selenium import webdriver</span><br><span class="line">from selenium.webdriver.chrome.service import Service</span><br><span class="line">from webdriver_manager.chrome import ChromeDriverManager</span><br><span class="line"></span><br><span class="line">service = Service(executable_path=ChromeDriverManager().install())</span><br><span class="line"></span><br><span class="line"># 這些建議都加上，不開頁面、禁用GPU加速、創窗最大化等等</span><br><span class="line">options = webdriver.ChromeOptions()</span><br><span class="line">options.add_argument(&quot;--headless&quot;)</span><br><span class="line">options.add_argument(&quot;--disable-gpu&quot;)</span><br><span class="line">options.add_argument(&quot;--disable-extensions&quot;)</span><br><span class="line">options.add_argument(&quot;--disable-infobars&quot;)</span><br><span class="line">options.add_argument(&quot;--start-maximized&quot;)</span><br><span class="line">options.add_argument(&quot;--disable-notifications&quot;)</span><br><span class="line">options.add_argument(&#x27;--no-sandbox&#x27;)</span><br><span class="line">options.add_argument(&#x27;--disable-dev-shm-usage&#x27;)</span><br><span class="line"></span><br><span class="line">driver = webdriver.Chrome(service=service, options=options)</span><br><span class="line"></span><br><span class="line">print(&quot;Chrome version:&quot;, driver.capabilities[&#x27;browserVersion&#x27;])</span><br><span class="line">print(&quot;ChromeDriver version:&quot;, driver.capabilities[&#x27;chrome&#x27;][&#x27;chromedriverVersion&#x27;])</span><br><span class="line"></span><br><span class="line"># 開始使用</span><br><span class="line">driver.get(&#x27;https://www.twse.com.tw/zh/trading/holiday.html&#x27;)</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Chrome version: 119.0.6045.123</span><br><span class="line"># ChromeDriver version: 119.0.6045.105 (38c72552c5e15ba9b3117c0967a0fd105072d7c6-refs/branch-heads/6045@&#123;#1103&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>webdriver_manager 會自動根據 dockerfile 中 google-chrome-stable版本，<br>自動在主機內安裝對應的 ChromeDrive 版本，並在 executable_path 這安裝取得路徑來做使用；<br>這樣以後使用 docker 打包就不會遇到版本的問題，也可以不用再下載 ChromeDrive，到專案中。</p>
+<hr>
+<h1 id="參考"><a href="#參考" class="headerlink" title="參考"></a>參考</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/SergeyPirogov/webdriver_manager">https://github.com/SergeyPirogov/webdriver_manager</a></p>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/64717302/deprecationwarning-executable-path-has-been-deprecated-selenium-python">https://stackoverflow.com/questions/64717302/deprecationwarning-executable-path-has-been-deprecated-selenium-python</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/hexo_next_blog/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/hexo_next_blog/tags/Python/" rel="tag"># Python</a>
+              <a href="/hexo_next_blog/tags/Selenium/" rel="tag"># Selenium</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/hexo_next_blog/2021/11/01/%E5%BE%8C%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%B8%AB%E8%BD%89%E8%81%B7/" rel="prev" title="後端工程師轉職">
+                  <i class="fa fa-angle-left"></i> 後端工程師轉職
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/hexo_next_blog/js/comments.js"></script><script src="/hexo_next_blog/js/utils.js"></script><script src="/hexo_next_blog/js/motion.js"></script><script src="/hexo_next_blog/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/hexo_next_blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
