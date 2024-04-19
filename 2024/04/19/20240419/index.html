@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/hexo_next_blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/hexo_next_blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/hexo_next_blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/hexo_next_blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/hexo_next_blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hsuhaobm.github.io","root":"/hexo_next_blog/","images":"/hexo_next_blog/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/hexo_next_blog/js/config.js"></script>
+
+    <meta name="description" content="因最近公司網站常常被異常流量攻擊，除了手動加入 IP封鎖，想實現自動化封鎖與解封，搭配第一次使用的 AWK練習嘗試看看。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWK 練習；實作自動封鎖和解封 IP地址">
+<meta property="og:url" content="https://hsuhaobm.github.io/hexo_next_blog/2024/04/19/20240419/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="因最近公司網站常常被異常流量攻擊，除了手動加入 IP封鎖，想實現自動化封鎖與解封，搭配第一次使用的 AWK練習嘗試看看。">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2024-04-19T05:41:26.000Z">
+<meta property="article:modified_time" content="2024-04-19T06:06:29.693Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="Nginx">
+<meta property="article:tag" content="AWK">
+<meta property="article:tag" content="自動化">
+<meta property="article:tag" content="網站安全">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hsuhaobm.github.io/hexo_next_blog/2024/04/19/20240419/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://hsuhaobm.github.io/hexo_next_blog/2024/04/19/20240419/","path":"2024/04/19/20240419/","title":"AWK 練習；實作自動封鎖和解封 IP地址"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>AWK 練習；實作自動封鎖和解封 IP地址 | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/hexo_next_blog/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/hexo_next_blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/hexo_next_blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B7%B4%E7%BF%92"><span class="nav-number">1.</span> <span class="nav-text">練習</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#IP-%E6%AC%A1%E6%95%B8%E7%B5%B1%E8%A8%88"><span class="nav-number">1.1.</span> <span class="nav-text">IP 次數統計</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk-%E5%B8%B8%E7%94%A8%E5%8F%83%E6%95%B8"><span class="nav-number">1.2.</span> <span class="nav-text">awk 常用參數</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#v-%E5%8F%83%E6%95%B8%E5%82%B3%E5%85%A5"><span class="nav-number">1.2.1.</span> <span class="nav-text">-v 參數傳入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#uniq-%EF%BC%9A%E5%8E%BB%E9%99%A4%E7%9B%B8%E9%84%B0-%E9%87%8D%E8%A4%87%E8%B3%87%E6%96%99-%E8%A6%81%E5%85%88sort"><span class="nav-number">1.2.2.</span> <span class="nav-text">uniq ：去除相鄰 重複資料&gt; 要先sort</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sort"><span class="nav-number">1.2.3.</span> <span class="nav-text">sort</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gsub-%E6%9B%BF%E6%8F%9B%E5%AD%97%E7%AC%A6"><span class="nav-number">1.2.4.</span> <span class="nav-text">gsub 替換字符</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%A6%E4%BD%9C%EF%BC%9A%E6%90%AD%E9%85%8D-Crontab-%E8%87%AA%E5%8B%95%E5%B0%81%E9%8E%96%E5%92%8C%E8%A7%A3%E5%B0%81-ip%E5%9C%B0%E5%9D%80"><span class="nav-number">2.</span> <span class="nav-text">實作：搭配 Crontab 自動封鎖和解封 ip地址</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B0%E5%A2%9E-block-ip-create-sh%EF%BC%9A%E5%B0%81%E9%8E%96%E5%90%8D%E5%96%AE%E5%BB%BA%E7%AB%8B"><span class="nav-number">2.1.</span> <span class="nav-text">新增 block_ip_create.sh：封鎖名單建立</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B0%E5%A2%9E-block-ip-clear-sh%EF%BC%9A%E5%B0%81%E9%8E%96%E5%90%8D%E5%96%AE%E8%A7%A3%E9%99%A4"><span class="nav-number">2.2.</span> <span class="nav-text">新增 block_ip_clear.sh：封鎖名單解除</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Crontab-%E5%AE%9A%E6%97%B6"><span class="nav-number">2.3.</span> <span class="nav-text">Crontab 定时</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%83%E8%80%83"><span class="nav-number">3.</span> <span class="nav-text">參考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/hexo_next_blog/archives/">
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/hexo_next_blog/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/hexo_next_blog/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://hsuhaobm.github.io/hexo_next_blog/2024/04/19/20240419/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/hexo_next_blog/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="AWK 練習；實作自動封鎖和解封 IP地址 | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AWK 練習；實作自動封鎖和解封 IP地址
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+      
+
+      <time title="創建時間：2024-04-19 13:41:26 / 修改時間：14:06:29" itemprop="dateCreated datePublished" datetime="2024-04-19T13:41:26+08:00">2024-04-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/hexo_next_blog/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/hexo_next_blog/2024/04/19/20240419/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2024/04/19/20240419/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>因最近公司網站常常被異常流量攻擊，除了手動加入 IP封鎖，<br>想實現自動化封鎖與解封，搭配第一次使用的 AWK練習嘗試看看。</p>
+<span id="more"></span>
+
+<h1 id="練習"><a href="#練習" class="headerlink" title="練習"></a>練習</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Nginx, access.log 格式範例</span><br><span class="line"></span><br><span class="line">139.162.83.234 - - [19/Apr/2024:10:22:25 +0800] &quot;CONNECT hotmail-com.olc.protection.outlook.com:25 HTTP/1.1&quot; 400 157 &quot;-&quot; &quot;-&quot;</span><br><span class="line">18.169.52.176 - - [19/Apr/2024:10:23:13 +0800] &quot;GET / HTTP/1.1&quot; 502 559 &quot;-&quot; &quot;Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36&quot;</span><br><span class="line">211.75.231.148 - - [19/Apr/2024:10:24:35 +0800] &quot;GET /scraper HTTP/1.1&quot; 200 2370 &quot;-&quot; &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36&quot;</span><br><span class="line">211.75.231.148 - - [19/Apr/2024:10:24:39 +0800] &quot;GET /scraper HTTP/1.1&quot; 200 2370 &quot;-&quot; &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36&quot;</span><br><span class="line">211.75.231.148 - - [19/Apr/2024:10:24:40 +0800] &quot;GET /scraper HTTP/1.1&quot; 200 2370 &quot;-&quot; &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36&quot;</span><br><span class="line">211.75.231.148 - - [19/Apr/2024:10:24:42 +0800] &quot;GET /scraper HTTP/1.1&quot; 200 2370 &quot;-&quot; &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36&quot;</span><br></pre></td></tr></table></figure>
+
+<h2 id="IP-次數統計"><a href="#IP-次數統計" class="headerlink" title="IP 次數統計"></a>IP 次數統計</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 今天次數並大於 10次</span><br><span class="line">awk -v today=&quot;$(date +&#x27;%d/%b/%Y&#x27;)&quot; &#x27;$4 ~ today &#123;print $1&#125;&#x27; access.log | sort | uniq -cd | awk &#x27;&#123;if($1&gt;10)print $0&#125;&#x27;</span><br><span class="line"></span><br><span class="line"># 今天</span><br><span class="line">awk -v today=&quot;$(date +&#x27;%d/%b/%Y&#x27;)&quot; &#x27;$4 ~ today &#123;print $1&#125;&#x27; access.log | sort | uniq -cd</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 統計 1小時內</span><br><span class="line">awk -v start=&quot;$(date -d &#x27;1 hour ago&#x27; +&#x27;%d/%b/%Y:%H:%M:%S&#x27;)&quot; &#x27;&#123;gsub(/\[|\]/,&quot;&quot;,$4); if ($4 &gt;= start) print $1,$4&#125;&#x27; access.log | sort | uniq -c</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 統計 1分鐘內</span><br><span class="line">awk -v start=&quot;$(date -d &#x27;1 minute ago&#x27; +&#x27;%d/%b/%Y:%H:%M:%S&#x27;)&quot; &#x27;&#123;gsub(/\[|\]/,&quot;&quot;,$4); if ($4 &gt;= start) print $1,$4&#125;&#x27; access.log | sort | uniq -c</span><br><span class="line"># 1分鐘內 大於10次</span><br><span class="line">awk -v start=&quot;$(date -d &#x27;1 minute ago&#x27; +&#x27;%d/%b/%Y:%H:%M:%S&#x27;)&quot; &#x27;&#123;gsub(/\[|\]/,&quot;&quot;,$4); if ($4 &gt;= start) print $1&#125;&#x27; access.log | sort | uniq -c | awk &#x27;&#123;if($1&gt;10)print $0&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="awk-常用參數"><a href="#awk-常用參數" class="headerlink" title="awk 常用參數"></a>awk 常用參數</h2><h3 id="v-參數傳入"><a href="#v-參數傳入" class="headerlink" title="-v 參數傳入"></a>-v 參數傳入</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># file.txt</span><br><span class="line">apple</span><br><span class="line">banana</span><br><span class="line">orange</span><br><span class="line">grape</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ex.1 帶入</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">awk -v var1=&quot;Hello&quot; -v var2=&quot;World&quot; &#x27;&#123;print var1, var2, $1&#125;&#x27; file.txt</span><br><span class="line"># 輸出</span><br><span class="line">Hello World apple</span><br><span class="line">Hello World banana</span><br><span class="line">Hello World orange</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ex.2 匹配</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pattern=&quot;an&quot;</span><br><span class="line">awk -v pattern=&quot;$pattern&quot; &#x27;$0 ~ pattern &#123;print&#125;&#x27; file.txt</span><br><span class="line"></span><br><span class="line"># 輸出</span><br><span class="line">banana</span><br><span class="line">orange</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="uniq-：去除相鄰-重複資料-要先sort"><a href="#uniq-：去除相鄰-重複資料-要先sort" class="headerlink" title="uniq ：去除相鄰 重複資料&gt; 要先sort"></a>uniq ：去除相鄰 重複資料&gt; 要先sort</h3><ul>
+<li>-c 次數</li>
+<li>-d 重複</li>
+<li>-u 不重複</li>
+</ul>
+<h3 id="sort"><a href="#sort" class="headerlink" title="sort"></a>sort</h3><ul>
+<li>-r 倒序</li>
+<li>-t 間隔符號</li>
+<li>-k 指定列數</li>
+</ul>
+<h3 id="gsub-替換字符"><a href="#gsub-替換字符" class="headerlink" title="gsub 替換字符"></a>gsub 替換字符</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">gsub(搜索字符串, 替换字符串, 目标字符串)</span><br><span class="line">gsub(/\[|\]/,&quot;&quot;,$4)</span><br><span class="line">[18/Apr/2024:05:31:48 =&gt; 18/Apr/2024:05:31:48</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<br/>
+<br/>
+
+<h1 id="實作：搭配-Crontab-自動封鎖和解封-ip地址"><a href="#實作：搭配-Crontab-自動封鎖和解封-ip地址" class="headerlink" title="實作：搭配 Crontab 自動封鎖和解封 ip地址"></a>實作：搭配 Crontab 自動封鎖和解封 ip地址</h1><p>Nginx 除了使用 limit_req_zone ，來阻止異常流量，<br>這邊實作結合 docker-nginx-certbot，將 Nginx日誌映射出來<br>並使用 AWK 掃描需要封鎖的 IP執行自動封鎖，<br>並於每日 5點解除封鎖<br>實務上是不是這樣做不確定，只是自行研究實作~~</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Nginx conf, http&#123;&#125; 或 server&#123;&#125; 新增</span><br><span class="line">include blockip.conf;</span><br></pre></td></tr></table></figure>
+
+<h2 id="新增-block-ip-create-sh：封鎖名單建立"><a href="#新增-block-ip-create-sh：封鎖名單建立" class="headerlink" title="新增 block_ip_create.sh：封鎖名單建立"></a>新增 block_ip_create.sh：封鎖名單建立</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"></span><br><span class="line"># 現在時間</span><br><span class="line">echo &quot;$(date +&#x27;%Y-%m-%d %H:%M:%S&#x27;)&quot; &gt;&gt; /root/docker-nginx-certbot/examples/nginx-logs/sh_log.log</span><br><span class="line"></span><br><span class="line"># 取得 IP 1分鐘內瀏覽大於 5 次,印出 $1的 IP</span><br><span class="line">ip_list=$(awk -v start=&quot;$(date -d &#x27;1 minute ago&#x27; +&#x27;%d/%b/%Y:%H:%M:%S&#x27;)&quot; &#x27;&#123;gsub(/\[|\]/,&quot;&quot;,$4); if ($4 &gt;= start) print $1&#125;&#x27; access.log | sort | uniq -c | awk &#x27;&#123;if($1&gt;5)print $2&#125;&#x27;)</span><br><span class="line"></span><br><span class="line"># 检查 ip_list 是否有值</span><br><span class="line">if [ -z &quot;$ip_list&quot; ]; then</span><br><span class="line">    echo &quot;ip_list is empty&quot; &gt;&gt; /root/docker-nginx-certbot/examples/nginx-logs/sh_log.log</span><br><span class="line">else</span><br><span class="line">    # ip_list 儲存</span><br><span class="line">    echo &quot;$ip_list&quot; &gt;&gt; /root/docker-nginx-certbot/examples/nginx-logs/sh_log.log</span><br><span class="line"></span><br><span class="line">    # 迴圈取 IP,寫入 blockip.conf</span><br><span class="line">    echo &quot;# Deny access to IP addresses in blockip.conf&quot; &gt; /root/docker-nginx-certbot/examples/user_conf.d/blockip.conf</span><br><span class="line">    for ip in $ip_list; do</span><br><span class="line">            echo &quot;deny $ip;&quot; &gt;&gt; /root/docker-nginx-certbot/examples/user_conf.d/blockip.conf</span><br><span class="line"></span><br><span class="line">    # 重啟 docker Nginx 容器</span><br><span class="line">    docker restart examples-nginx-1</span><br><span class="line"></span><br><span class="line">    done</span><br><span class="line">    echo &quot;$(date +&#x27;%Y-%m-%d %H:%M:%S&#x27;) blockip.conf generated successfully&quot; &gt;&gt; /root/docker-nginx-certbot/examples/nginx-logs/sh_log.log</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+
+<h2 id="新增-block-ip-clear-sh：封鎖名單解除"><a href="#新增-block-ip-clear-sh：封鎖名單解除" class="headerlink" title="新增 block_ip_clear.sh：封鎖名單解除"></a>新增 block_ip_clear.sh：封鎖名單解除</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"># 清空封鎖的 IP</span><br><span class="line">echo &quot;&quot; &gt; /root/docker-nginx-certbot/examples/user_conf.d/blockip.conf</span><br><span class="line"></span><br><span class="line"># 重啟 docker Nginx 容器</span><br><span class="line">docker restart examples-nginx-1</span><br><span class="line"></span><br><span class="line">echo &quot;$(date +&#x27;%Y-%m-%d %H:%M:%S&#x27;) blockip.conf clear successfully&quot; &gt;&gt; /root/docker-nginx-certbot/examples/nginx-logs/sh_log.log</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="Crontab-定时"><a href="#Crontab-定时" class="headerlink" title="Crontab 定时"></a>Crontab 定时</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">crontab -e</span><br><span class="line"># 每分鐘 1次，生成封鎖 IP清單</span><br><span class="line">* * * * * cd /root/docker-nginx-certbot/examples/ &amp;&amp; sh block_ip_create.sh</span><br><span class="line"># 每天早上 5點，清除封鎖的 IP清單</span><br><span class="line">0 /5 * * * cd /root/docker-nginx-certbot/examples/ &amp;&amp; sh block_ip_clear.sh</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 重啟生效</span><br><span class="line">systemctl restart crond.service</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="參考"><a href="#參考" class="headerlink" title="參考"></a>參考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/JonasAlfredsson/docker-nginx-certbot">Docker Nginx Certbot GitHub</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_42914528/article/details/130445341">Nginx自动封锁拉黑可疑IP</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.runoob.com/linux/linux-comm-awk.html">AWK基礎</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/hexo_next_blog/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/hexo_next_blog/tags/Nginx/" rel="tag"># Nginx</a>
+              <a href="/hexo_next_blog/tags/AWK/" rel="tag"># AWK</a>
+              <a href="/hexo_next_blog/tags/%E8%87%AA%E5%8B%95%E5%8C%96/" rel="tag"># 自動化</a>
+              <a href="/hexo_next_blog/tags/%E7%B6%B2%E7%AB%99%E5%AE%89%E5%85%A8/" rel="tag"># 網站安全</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/hexo_next_blog/2024/04/01/20240401/" rel="prev" title="Docker 建置打包 Python + Selenium + ChromeDriver + Chrome">
+                  <i class="fa fa-angle-left"></i> Docker 建置打包 Python + Selenium + ChromeDriver + Chrome
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/hexo_next_blog/js/comments.js"></script><script src="/hexo_next_blog/js/utils.js"></script><script src="/hexo_next_blog/js/motion.js"></script><script src="/hexo_next_blog/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/hexo_next_blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
