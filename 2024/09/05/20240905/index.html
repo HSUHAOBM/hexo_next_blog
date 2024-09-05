@@ -19,28 +19,35 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"hsuhaobm.github.io","root":"/hexo_next_blog/","images":"/hexo_next_blog/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/hexo_next_blog/js/config.js"></script>
 
-    <meta name="description" content="背景 個人背景：南部私校動畫遊戲設計系畢業 工作經歷：展覽營運管理、展覽活動專案執行 程式背景：大學用過 JavaScript，完成 Flash 的小作業(計算機..等等)">
+    <meta name="description" content="當初對 Ngrok 的運作感到非常驚奇，因為它能夠輕鬆實現內網穿透。因此，決定進一步練習如何在自己的環境中實現類似的功能。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="後端工程師轉職">
-<meta property="og:url" content="https://hsuhaobm.github.io/hexo_next_blog/2021/11/01/%E5%BE%8C%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%B8%AB%E8%BD%89%E8%81%B7/index.html">
+<meta property="og:title" content="使用 VPS 模擬 Ngrok 透過 SSH 實現內網穿透">
+<meta property="og:url" content="https://hsuhaobm.github.io/hexo_next_blog/2024/09/05/20240905/index.html">
 <meta property="og:site_name" content="HaoGooday">
-<meta property="og:description" content="背景 個人背景：南部私校動畫遊戲設計系畢業 工作經歷：展覽營運管理、展覽活動專案執行 程式背景：大學用過 JavaScript，完成 Flash 的小作業(計算機..等等)">
+<meta property="og:description" content="當初對 Ngrok 的運作感到非常驚奇，因為它能夠輕鬆實現內網穿透。因此，決定進一步練習如何在自己的環境中實現類似的功能。">
 <meta property="og:locale" content="zh_TW">
-<meta property="article:published_time" content="2021-11-01T06:44:32.000Z">
-<meta property="article:modified_time" content="2024-04-17T05:12:28.379Z">
+<meta property="og:image" content="https://hsuhaobm.github.io/hexo_next_blog/2024/09/05/20240905/%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8B%99.png">
+<meta property="og:image" content="https://hsuhaobm.github.io/hexo_next_blog/2024/09/05/20240905/%E7%A2%BA%E8%AA%8D%E7%AB%AF%E5%8F%A3.png">
+<meta property="og:image" content="https://hsuhaobm.github.io/hexo_next_blog/2024/09/05/20240905/VPS%20IP%20%E9%80%A3%E7%B7%9A.png">
+<meta property="og:image" content="https://hsuhaobm.github.io/hexo_next_blog/2024/09/05/20240905/%E7%B6%81%E7%B6%B2%E5%9F%9F.png">
+<meta property="article:published_time" content="2024-09-05T02:36:56.000Z">
+<meta property="article:modified_time" content="2024-09-05T03:46:13.883Z">
 <meta property="article:author" content="Ian">
-<meta property="article:tag" content="轉職後端工程師">
+<meta property="article:tag" content="Nginx">
+<meta property="article:tag" content="Ngrok">
+<meta property="article:tag" content="VPS">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hsuhaobm.github.io/hexo_next_blog/2024/09/05/20240905/%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8B%99.png">
 
 
-<link rel="canonical" href="https://hsuhaobm.github.io/hexo_next_blog/2021/11/01/%E5%BE%8C%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%B8%AB%E8%BD%89%E8%81%B7/">
+<link rel="canonical" href="https://hsuhaobm.github.io/hexo_next_blog/2024/09/05/20240905/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://hsuhaobm.github.io/hexo_next_blog/2021/11/01/%E5%BE%8C%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%B8%AB%E8%BD%89%E8%81%B7/","path":"2021/11/01/後端工程師轉職/","title":"後端工程師轉職"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://hsuhaobm.github.io/hexo_next_blog/2024/09/05/20240905/","path":"2024/09/05/20240905/","title":"使用 VPS 模擬 Ngrok 透過 SSH 實現內網穿透"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>後端工程師轉職 | HaoGooday</title>
+<title>使用 VPS 模擬 Ngrok 透過 SSH 實現內網穿透 | HaoGooday</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
   <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
@@ -115,7 +122,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%B7%E5%9B%A0"><span class="nav-number">2.</span> <span class="nav-text">起因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E6%88%91%E5%AD%B8%E7%BF%92"><span class="nav-number">3.</span> <span class="nav-text">自我學習</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E5%85%A5%E8%A8%93%E7%B7%B4%E7%87%9F"><span class="nav-number">4.</span> <span class="nav-text">加入訓練營</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A8%93%E7%B7%B4%E7%87%9F%E7%9A%84%E6%97%A5%E5%AD%90-2021%E5%B9%B42%E6%9C%88-2021%E5%B9%B48%E6%9C%88%E3%83%BB7-%E5%80%8B%E6%9C%88"><span class="nav-number">5.</span> <span class="nav-text">訓練營的日子 (2021年2月 - 2021年8月・7 個月)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B1%82%E8%81%B7"><span class="nav-number">6.</span> <span class="nav-text">求職</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8B%E5%89%8D%E6%BA%96%E5%82%99"><span class="nav-number">1.</span> <span class="nav-text">事前準備</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E9%97%9C%E6%AD%A5%E9%A9%9F"><span class="nav-number">2.</span> <span class="nav-text">相關步驟</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#VPS-%E8%A8%AD%E7%BD%AE"><span class="nav-number">2.1.</span> <span class="nav-text">VPS 設置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E6%A9%9F%E8%A8%AD%E7%BD%AE"><span class="nav-number">2.2.</span> <span class="nav-text">主機設置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VPS-%E6%B8%AC%E8%A9%A6"><span class="nav-number">2.3.</span> <span class="nav-text">VPS 測試</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%8F%E9%81%8E-Nginx-%E7%B6%81%E4%B8%8A-Domain-%EF%BC%88%E5%8F%AF%E9%81%B8%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">透過 Nginx 綁上 Domain （可選）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">3.</span> <span class="nav-text">其他</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -174,7 +181,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
-    <link itemprop="mainEntityOfPage" href="https://hsuhaobm.github.io/hexo_next_blog/2021/11/01/%E5%BE%8C%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%B8%AB%E8%BD%89%E8%81%B7/">
+    <link itemprop="mainEntityOfPage" href="https://hsuhaobm.github.io/hexo_next_blog/2024/09/05/20240905/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/hexo_next_blog/images/avatar.gif">
@@ -187,12 +194,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="後端工程師轉職 | HaoGooday">
+      <meta itemprop="name" content="使用 VPS 模擬 Ngrok 透過 SSH 實現內網穿透 | HaoGooday">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          後端工程師轉職
+          使用 VPS 模擬 Ngrok 透過 SSH 實現內網穿透
         </h1>
 
         <div class="post-meta-container">
@@ -202,15 +209,9 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">發表於</span>
+      
 
-      <time title="創建時間：2021-11-01 14:44:32" itemprop="dateCreated datePublished" datetime="2021-11-01T14:44:32+08:00">2021-11-01</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新於</span>
-      <time title="修改時間：2024-04-17 13:12:28" itemprop="dateModified" datetime="2024-04-17T13:12:28+08:00">2024-04-17</time>
+      <time title="創建時間：2024-09-05 10:36:56 / 修改時間：11:46:13" itemprop="dateCreated datePublished" datetime="2024-09-05T10:36:56+08:00">2024-09-05</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -218,7 +219,7 @@
       </span>
       <span class="post-meta-item-text">分類於</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/hexo_next_blog/categories/Life/" itemprop="url" rel="index"><span itemprop="name">Life</span></a>
+          <a href="/hexo_next_blog/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
         </span>
     </span>
 
@@ -231,8 +232,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/hexo_next_blog/2021/11/01/%E5%BE%8C%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%B8%AB%E8%BD%89%E8%81%B7/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/11/01/後端工程師轉職/" itemprop="commentCount"></span>
+    <a title="disqus" href="/hexo_next_blog/2024/09/05/20240905/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2024/09/05/20240905/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -245,25 +246,59 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><ul>
-<li>個人背景：南部私校動畫遊戲設計系畢業</li>
-<li>工作經歷：展覽營運管理、展覽活動專案執行</li>
-<li>程式背景：大學用過 JavaScript，完成 Flash 的小作業(計算機..等等)</li>
-</ul>
+    <div class="post-body" itemprop="articleBody"><p>當初對 Ngrok 的運作感到非常驚奇，因為它能夠輕鬆實現內網穿透。<br>因此，決定進一步練習如何在自己的環境中實現類似的功能。</p>
 <span id="more"></span>
 
-<h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>年紀將近 30，可以說幾乎是一事無成，工作上又遇上疫情，看著身邊的同事，一個一個被裁，讓我很有危機感，然而決定辭掉現職，進修自己學習投資理財、培養閱讀習慣等等，再閱讀書籍時看到有句「當你不知道投資甚麼，投資自己」，再買額外書籍時，看到一本書「Python零基礎入門班」，當時沒有想太多，就買來學學看。</p>
-<h2 id="自我學習"><a href="#自我學習" class="headerlink" title="自我學習"></a>自我學習</h2><p>大概花了近一個月，把書上的題目都做了一遍，但學 Python這個程式語言可以做什麼？便開始購入其他相關的書籍，開始實作了一些小功能(下載 YouTube 音樂、爬取討論區標題等等)。同時找了一些網路免費資源可供學習，從新學習 Python的基礎，看影片和看書，差蠻多的，影片感覺有人帶似乎不錯，有些注意事項、變數命名、程式撰寫風格等等，書上是比較少的。</p>
-<p>其中一個讓我特別感興趣的是將靜態網頁部屬到 Heroku 雲平台。這使我能夠將我的作品分享給他人，並讓他們輕鬆地訪問。我開始探索更多關於 Heroku 的資源，並發現了可以開發 LINE Bot 的機會。考慮到我平常玩遊戲時使用機器人輔助的經驗，我決定嘗試自己開發一個屬於自己的機器人，來協助記錄一些規律發生事項。</p>
-<p>在製作的過程也遇到很多挫折和困難。例如，寫了一個字典，想記錄相關資訊，但怎麼執行不久後，裡面的東西都不見了？開始 Google找答案，最後發現是寫在記憶體，便開始接觸了資料庫，最後順利把這個簡單的機器人實作出來，並分享給了我的朋友。他們的回饋非常正面，這讓我感到非常滿足和有成就感。更重要的是，這個結果不僅省錢，過程還讓我學到了許多寶貴的經驗和知識。</p>
-<h2 id="加入訓練營"><a href="#加入訓練營" class="headerlink" title="加入訓練營"></a>加入訓練營</h2><p>那時大多都是在 YouTube 上，觀看彭彭老師的課程，覺得老師的邏輯、表達都非常適合初學者，更重要的是課程都是免費的，決定小小支持下，加入會員；得知彭彭老師要舉辦第一屆軟體工程師扶持計畫，相當的有興趣，並聽了說明會，聽完就馬上填寫了報名表單，很開心能通過審核；當時想法很簡單，也許程式能讓我未來可以當作職業，能成為軟體工程師，並可以每天過著充實的生活，讓自己保持進步。</p>
-<h2 id="訓練營的日子-2021年2月-2021年8月・7-個月"><a href="#訓練營的日子-2021年2月-2021年8月・7-個月" class="headerlink" title="訓練營的日子 (2021年2月 - 2021年8月・7 個月)"></a>訓練營的日子 (2021年2月 - 2021年8月・7 個月)</h2><p>第一階段<br>全端基礎的訓練：HTML、CSS、JavaScript、Python Flask、資料庫 CRUD<br>第二階段<br>引導專案開發：根據導師每週引導任務，完成結合金流的旅遊店商網站。<br>第三階段<br>個人專案開發：獨力完成個人專案的開發</p>
-<p>這是我人生第一次付費，參加訓練課程，覺得非常新鮮，導師不在是 YouTube 上的影片，手把手的教學，而是透過每週給關鍵字以及適時的引導，讓我們自己去完成當週任務，培養解決問題的能力。並不定時會有導師、助教、同學分享，提升提升工程師所需的職能與思考邏輯；也找了轉職前輩、企業的人資、技術主管，經驗的分享，都讓我們受益良多；更重要的是彭彭老師一直鼓勵著我們，告訴著我們可以，沒問題的。</p>
-<h2 id="求職"><a href="#求職" class="headerlink" title="求職"></a>求職</h2><p>因為個人因素，決定在南部求職，約投了近 20家，有 4場的面試，最後有拿到 2個 offer，過程花了 2個月。<br>最後感彭彭老師、訓練營的助教、同學、身邊陪伴家人，支持我、幫助我，讓我能順利轉職成功。</p>
-<p>現在，才要真正開始，不忘在訓練營學到的態度，不斷學習，前進。</p>
-<blockquote>
-<p>那些以為是結果 其實是每一站，每過一站不斷開始著每一段。<br>蛋堡【過程】</p>
-</blockquote>
+<h1 id="事前準備"><a href="#事前準備" class="headerlink" title="事前準備"></a>事前準備</h1><ul>
+<li>VPS: 一台在雲端的虛擬私人伺服器，個人選擇 Linode，作為公開可訪問的中繼伺服器。</li>
+<li>內部服務主機: 需要進行內網穿透的本地伺服器。</li>
+<li>DOMAIN（可選）</li>
+</ul>
+<h1 id="相關步驟"><a href="#相關步驟" class="headerlink" title="相關步驟"></a>相關步驟</h1><h2 id="VPS-設置"><a href="#VPS-設置" class="headerlink" title="VPS 設置"></a>VPS 設置</h2><ol>
+<li><p><strong>安裝必要的軟件 OpenSSH Server</strong></p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install openssh-server</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>確認 sshd_config 配置</strong></p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo vi /etc/ssh/sshd_config</span><br></pre></td></tr></table></figure></li>
+</ol>
+<ul>
+<li><p>確保以下設定存在：</p>
+  <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 允許 SSH 轉發功能，支持本地、遠程和動態轉發。</span></span><br><span class="line">AllowTcpForwarding <span class="built_in">yes</span></span><br><span class="line"><span class="comment"># 允許遠程轉發的端口被所有 IP 地址訪問</span></span><br><span class="line">GatewayPorts <span class="built_in">yes</span></span><br></pre></td></tr></table></figure></li>
+<li><p>修改完後重啟 SSH 服務：</p>
+  <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo systemctl restart sshd</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="主機設置"><a href="#主機設置" class="headerlink" title="主機設置"></a>主機設置</h2><ol>
+<li><strong>確認本地服務正常運行</strong></li>
+</ol>
+<p>這裡使用 Flask + Redis 作為示範。</p>
+<img src="/hexo_next_blog/2024/09/05/20240905/%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8B%99.png" class="" title="本地服務">
+
+<ol start="2">
+<li><strong>建立 SSH 反向端口轉發</strong><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -R：指定反向端口轉發。</span></span><br><span class="line"><span class="comment"># 9001：VPS 上的端口。</span></span><br><span class="line"><span class="comment"># localhost:3000：本地主機上的端口。</span></span><br><span class="line"><span class="comment"># user@vps_ip：你的 VPS 用戶名和 IP 地址。</span></span><br><span class="line"></span><br><span class="line">ssh -R 9001:localhost:3000 user@vps_ip</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="VPS-測試"><a href="#VPS-測試" class="headerlink" title="VPS 測試"></a>VPS 測試</h2><ol>
+<li><strong>測試是否成功連接</strong><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 測試是否成功連上</span></span><br><span class="line">curl http://localhost:9001</span><br></pre></td></tr></table></figure></li>
+<li><strong>檢查端口是否正常開啟</strong><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo netstat -tuln | grep 9001</span><br></pre></td></tr></table></figure></li>
+</ol>
+<img src="/hexo_next_blog/2024/09/05/20240905/%E7%A2%BA%E8%AA%8D%E7%AB%AF%E5%8F%A3.png" class="" title="確認端口">
+
+
+<img src="/hexo_next_blog/2024/09/05/20240905/VPS%20IP%20%E9%80%A3%E7%B7%9A.png" class="" title="VPS IP 連線">
+
+<h2 id="透過-Nginx-綁上-Domain-（可選）"><a href="#透過-Nginx-綁上-Domain-（可選）" class="headerlink" title="透過 Nginx 綁上 Domain （可選）"></a>透過 Nginx 綁上 Domain （可選）</h2><ul>
+<li>增強安全性：可以通過 Nginx 設置防火牆規則、IP 過濾等來提升安全性。</li>
+</ul>
+<img src="/hexo_next_blog/2024/09/05/20240905/%E7%B6%81%E7%B6%B2%E5%9F%9F.png" class="" title="綁網域">
+
+<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><ul>
+<li><p>SSH 通道確保持久連線</p>
+<ul>
+<li>修改 ssh&#x2F;config<br>  為防止因閒置斷開，可以每 60 秒發送一個保持活躍的訊號： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Host *</span><br><span class="line">    ServerAliveInterval 60</span><br><span class="line">    ServerAliveCountMax 5</span><br></pre></td></tr></table></figure></li>
+<li>Windows： PuTTY 或 plink… 設置</li>
+<li>Linux： autossh 或 tmux… 設置</li>
+</ul>
+</li>
+</ul>
 
     </div>
 
@@ -273,21 +308,20 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/hexo_next_blog/tags/%E8%BD%89%E8%81%B7%E5%BE%8C%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%B8%AB/" rel="tag"># 轉職後端工程師</a>
+              <a href="/hexo_next_blog/tags/Nginx/" rel="tag"># Nginx</a>
+              <a href="/hexo_next_blog/tags/Ngrok/" rel="tag"># Ngrok</a>
+              <a href="/hexo_next_blog/tags/VPS/" rel="tag"># VPS</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/hexo_next_blog/1992/06/10/20240321/" rel="prev" title="2024/4/1 從 Medium到 Hexo">
-                  <i class="fa fa-angle-left"></i> 2024/4/1 從 Medium到 Hexo
+                <a href="/hexo_next_blog/2024/04/19/20240419/" rel="prev" title="AWK 練習；實作自動封鎖和解封 IP地址">
+                  <i class="fa fa-angle-left"></i> AWK 練習；實作自動封鎖和解封 IP地址
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/hexo_next_blog/2024/04/01/20240401/" rel="next" title="Docker 建置打包 Python + Selenium + ChromeDriver + Chrome">
-                  Docker 建置打包 Python + Selenium + ChromeDriver + Chrome <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>
