@@ -20,15 +20,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"hsuhaobm.github.io","root":"/hexo_next_blog/","images":"/hexo_next_blog/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/hexo_next_blog/js/config.js"></script>
 
-    <meta name="description" content="起因使用 selenium時，都必需要先抓對應的 ChromeDriver，然後再開始使用，如果瀏覽器版本和 ChromeDriver不同，會出現錯誤。">
+    <meta name="description" content="起因使用 selenium 時，都必需要先抓對應的 ChromeDriver，然後再開始使用，如果瀏覽器版本和 ChromeDriver 不同，會出現錯誤。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Docker 建置打包 Python + Selenium + ChromeDriver + Chrome">
 <meta property="og:url" content="https://hsuhaobm.github.io/hexo_next_blog/2024/04/01/20240401/index.html">
 <meta property="og:site_name" content="HaoGooday">
-<meta property="og:description" content="起因使用 selenium時，都必需要先抓對應的 ChromeDriver，然後再開始使用，如果瀏覽器版本和 ChromeDriver不同，會出現錯誤。">
+<meta property="og:description" content="起因使用 selenium 時，都必需要先抓對應的 ChromeDriver，然後再開始使用，如果瀏覽器版本和 ChromeDriver 不同，會出現錯誤。">
 <meta property="og:locale" content="zh_TW">
 <meta property="article:published_time" content="2024-04-01T07:41:27.000Z">
-<meta property="article:modified_time" content="2024-04-19T06:07:43.525Z">
+<meta property="article:modified_time" content="2024-09-18T02:34:56.747Z">
 <meta property="article:author" content="Ian">
 <meta property="article:tag" content="Docker">
 <meta property="article:tag" content="Python">
@@ -213,7 +213,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新於</span>
-      <time title="修改時間：2024-04-19 14:07:43" itemprop="dateModified" datetime="2024-04-19T14:07:43+08:00">2024-04-19</time>
+      <time title="修改時間：2024-09-18 10:34:56" itemprop="dateModified" datetime="2024-09-18T10:34:56+08:00">2024-09-18</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -240,6 +240,21 @@
   </span>
   
   
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>2.4k</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>6 分鐘</span>
+    </span>
 </div>
 
         </div>
@@ -248,16 +263,16 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h1 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h1><p>使用 selenium時，都必需要先抓對應的 ChromeDriver，<br>然後再開始使用，如果瀏覽器版本和 ChromeDriver不同，會出現錯誤。</p>
+    <div class="post-body" itemprop="articleBody"><h1 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h1><p>使用 selenium 時，都必需要先抓對應的 ChromeDriver，<br>然後再開始使用，如果瀏覽器版本和 ChromeDriver 不同，會出現錯誤。</p>
 <span id="more"></span>
 
-<h1 id="舉例"><a href="#舉例" class="headerlink" title="舉例"></a>舉例</h1><p>使用在下面 docker file build， google-chrome-stable版本，<br>常常會發生跟抓的 Driver對不上，程式進而會產生下列報錯等等</p>
+<h1 id="舉例"><a href="#舉例" class="headerlink" title="舉例"></a>舉例</h1><p>使用在下面 docker file build， google-chrome-stable 版本，<br>常常會發生跟抓的 Driver 對不上，程式進而會產生下列報錯等等</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">selenium.common.exceptions.SessionNotCreatedException: Message: session not created: Chrome failed to start: exited normally.</span><br></pre></td></tr></table></figure>
 
 <h2 id="DockerFile"><a href="#DockerFile" class="headerlink" title="DockerFile"></a>DockerFile</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FROM python:3.8.10</span><br><span class="line">ENV PYTHONUNBUFFERED 1</span><br><span class="line">RUN mkdir /app</span><br><span class="line">WORKDIR /app</span><br><span class="line"></span><br><span class="line">COPY . /app/</span><br><span class="line"></span><br><span class="line">RUN pip install -r requirements.txt</span><br><span class="line"></span><br><span class="line">RUN apt-get update</span><br><span class="line">RUN apt-get install -y wget</span><br><span class="line">RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \</span><br><span class="line">    &amp;&amp; echo &quot;deb http://dl.google.com/linux/chrome/deb/ stable main&quot; &gt;&gt; /etc/apt/sources.list.d/google.list</span><br><span class="line">RUN apt-get update &amp;&amp; apt-get -y install google-chrome-stable</span><br></pre></td></tr></table></figure>
 
 
-<h1 id="解決方法"><a href="#解決方法" class="headerlink" title="解決方法"></a>解決方法</h1><p>Selenium 升級至 v4.0.0 以上 並搭配 webdriver_manager，<br>就可以不用特地去下載對應的 Driver版本</p>
+<h1 id="解決方法"><a href="#解決方法" class="headerlink" title="解決方法"></a>解決方法</h1><p>Selenium 升級至 v4.0.0 以上 並搭配 webdriver_manager，<br>就可以不用特地去下載對應的 Driver 版本</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 安裝套件</span><br><span class="line">pip install -U selenium</span><br><span class="line">pip install webdriver-manager</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># .py 程式</span><br><span class="line">from selenium import webdriver</span><br><span class="line">from selenium.webdriver.chrome.service import Service</span><br><span class="line">from webdriver_manager.chrome import ChromeDriverManager</span><br><span class="line"></span><br><span class="line">service = Service(executable_path=ChromeDriverManager().install())</span><br><span class="line"></span><br><span class="line"># 這些建議都加上，不開頁面、禁用GPU加速、創窗最大化等等</span><br><span class="line">options = webdriver.ChromeOptions()</span><br><span class="line">options.add_argument(&quot;--headless&quot;)</span><br><span class="line">options.add_argument(&quot;--disable-gpu&quot;)</span><br><span class="line">options.add_argument(&quot;--disable-extensions&quot;)</span><br><span class="line">options.add_argument(&quot;--disable-infobars&quot;)</span><br><span class="line">options.add_argument(&quot;--start-maximized&quot;)</span><br><span class="line">options.add_argument(&quot;--disable-notifications&quot;)</span><br><span class="line">options.add_argument(&#x27;--no-sandbox&#x27;)</span><br><span class="line">options.add_argument(&#x27;--disable-dev-shm-usage&#x27;)</span><br><span class="line"></span><br><span class="line">driver = webdriver.Chrome(service=service, options=options)</span><br><span class="line"></span><br><span class="line">print(&quot;Chrome version:&quot;, driver.capabilities[&#x27;browserVersion&#x27;])</span><br><span class="line">print(&quot;ChromeDriver version:&quot;, driver.capabilities[&#x27;chrome&#x27;][&#x27;chromedriverVersion&#x27;])</span><br><span class="line"></span><br><span class="line"># 開始使用</span><br><span class="line">driver.get(&#x27;https://www.twse.com.tw/zh/trading/holiday.html&#x27;)</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
