@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="nl_wmR_0k14r3e054p2rbknAvVR-s5mFGhnBdS6cGLc" />
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/hexo_next_blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/hexo_next_blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/hexo_next_blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/hexo_next_blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/hexo_next_blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hsuhaobm.github.io","root":"/hexo_next_blog/","images":"/hexo_next_blog/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/hexo_next_blog/js/config.js"></script>
+
+    <meta name="description" content="在先前實踐中使用過 SSH -R 實現內網穿透，將本地服務暴露到外網，這種方法有效解決了內網服務無法直接被訪問的問題。 這次，將嘗試使用用 SSH -D 配置 SOCKS5 Proxy，通過隧道轉發流量，不僅能隱藏 IP，還能輕鬆應對地區限制和匿名需求。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SOCKS5 Proxy 實作">
+<meta property="og:url" content="https://hsuhaobm.github.io/hexo_next_blog/2024/11/27/20241127/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="在先前實踐中使用過 SSH -R 實現內網穿透，將本地服務暴露到外網，這種方法有效解決了內網服務無法直接被訪問的問題。 這次，將嘗試使用用 SSH -D 配置 SOCKS5 Proxy，通過隧道轉發流量，不僅能隱藏 IP，還能輕鬆應對地區限制和匿名需求。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://hsuhaobm.github.io/hexo_next_blog/2024/11/27/20241127/Firefox%20%E9%85%8D%E7%BD%AE.png">
+<meta property="og:image" content="https://hsuhaobm.github.io/hexo_next_blog/2024/11/27/20241127/IP%20%E6%9F%A5%E7%9C%8B.png">
+<meta property="og:image" content="https://hsuhaobm.github.io/hexo_next_blog/2024/11/27/20241127/Chrome%20%E9%85%8D%E7%BD%AE.png">
+<meta property="article:published_time" content="2024-11-27T03:01:34.000Z">
+<meta property="article:modified_time" content="2024-11-27T03:01:34.000Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="VPS">
+<meta property="article:tag" content="Proxy">
+<meta property="article:tag" content="SSH">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hsuhaobm.github.io/hexo_next_blog/2024/11/27/20241127/Firefox%20%E9%85%8D%E7%BD%AE.png">
+
+
+<link rel="canonical" href="https://hsuhaobm.github.io/hexo_next_blog/2024/11/27/20241127/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://hsuhaobm.github.io/hexo_next_blog/2024/11/27/20241127/","path":"2024/11/27/20241127/","title":"SOCKS5 Proxy 實作"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SOCKS5 Proxy 實作 | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/hexo_next_blog/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/hexo_next_blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/hexo_next_blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/hexo_next_blog/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a></li><li class="menu-item menu-item-about"><a href="/hexo_next_blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E9%BA%BC%E6%98%AF-Proxy%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">什麼是 Proxy？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Proxy-%E7%9A%84%E5%88%86%E9%A1%9E"><span class="nav-number">1.1.</span> <span class="nav-text">Proxy 的分類</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E5%90%91%E4%BB%A3%E7%90%86%EF%BC%88Forward-Proxy%EF%BC%89"><span class="nav-number">1.1.1.</span> <span class="nav-text">正向代理（Forward Proxy）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%EF%BC%88Reverse-Proxy%EF%BC%89"><span class="nav-number">1.1.2.</span> <span class="nav-text">反向代理（Reverse Proxy）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%A9%E7%94%A8-SSH-D-%E5%AF%A6%E7%8F%BE-SOCKS5-Proxy"><span class="nav-number">2.</span> <span class="nav-text">利用 SSH -D 實現 SOCKS5 Proxy</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E5%89%8D%E6%BA%96%E5%82%99"><span class="nav-number">2.1.</span> <span class="nav-text">事前準備</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%A6%E9%9A%9B%E6%B8%AC%E8%A9%A6%E6%B5%81%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">實際測試流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%95%9F%E7%94%A8-SOCKS5-Proxy"><span class="nav-number">2.2.1.</span> <span class="nav-text">1. 啟用 SOCKS5 Proxy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AE%E6%9C%AC%E5%9C%B0%E6%A9%9F%E5%99%A8%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%90%86"><span class="nav-number">2.2.2.</span> <span class="nav-text">2. 配置本地機器使用代理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Firefox-%E7%80%8F%E8%A6%BD%E5%99%A8"><span class="nav-number">2.2.2.1.</span> <span class="nav-text">Firefox 瀏覽器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Chrome-%E7%80%8F%E8%A6%BD%E5%99%A8"><span class="nav-number">2.2.2.2.</span> <span class="nav-text">Chrome 瀏覽器</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A3%9C%E5%85%85"><span class="nav-number">3.</span> <span class="nav-text">補充</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Netflix-%E6%B8%AC%E8%A9%A6"><span class="nav-number">3.1.</span> <span class="nav-text">Netflix 測試</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SOCKS5-Proxy-%E8%88%87-VPN-%E7%9A%84%E5%B0%8D%E6%AF%94"><span class="nav-number">3.2.</span> <span class="nav-text">SOCKS5 Proxy 與 VPN 的對比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linode%E6%90%AD%E5%BB%BAVPN"><span class="nav-number">3.3.</span> <span class="nav-text">Linode搭建VPN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">3.3.1.</span> <span class="nav-text">參考文章</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/hexo_next_blog/archives/">
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/hexo_next_blog/categories/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/hexo_next_blog/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://hsuhaobm.github.io/hexo_next_blog/2024/11/27/20241127/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/hexo_next_blog/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SOCKS5 Proxy 實作 | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SOCKS5 Proxy 實作
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2024-11-27 11:01:34" itemprop="dateCreated datePublished" datetime="2024-11-27T11:01:34+08:00">2024-11-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/hexo_next_blog/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/hexo_next_blog/categories/Learn/Networking/" itemprop="url" rel="index"><span itemprop="name">Networking</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/hexo_next_blog/categories/Learn/Networking/Proxy/" itemprop="url" rel="index"><span itemprop="name">Proxy</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/hexo_next_blog/categories/Learn/SSH/" itemprop="url" rel="index"><span itemprop="name">SSH</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/hexo_next_blog/categories/Learn/SSH/VPS/" itemprop="url" rel="index"><span itemprop="name">VPS</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/hexo_next_blog/2024/11/27/20241127/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2024/11/27/20241127/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>1.6k</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>4 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在先前實踐中使用過 <a href="2024/09/05/20240905"><strong>SSH -R</strong> 實現內網穿透</a>，將本地服務暴露到外網，這種方法有效解決了內網服務無法直接被訪問的問題。</p>
+<p>這次，將嘗試使用用 SSH -D 配置 SOCKS5 Proxy，通過隧道轉發流量，不僅能隱藏 IP，還能輕鬆應對地區限制和匿名需求。</p>
+<span id="more"></span>
+
+<h1 id="什麼是-Proxy？"><a href="#什麼是-Proxy？" class="headerlink" title="什麼是 Proxy？"></a>什麼是 Proxy？</h1><p>Proxy（代理伺服器）是一種中介服務，位於用戶端與目標伺服器之間，負責轉發請求與回應。簡單來說，它是「中間人」，幫助用戶端隱藏自身資訊並與外界互動。</p>
+<h2 id="Proxy-的分類"><a href="#Proxy-的分類" class="headerlink" title="Proxy 的分類"></a>Proxy 的分類</h2><p>Proxy 可根據用途與應用場景分為以下類型：</p>
+<h3 id="正向代理（Forward-Proxy）"><a href="#正向代理（Forward-Proxy）" class="headerlink" title="正向代理（Forward Proxy）"></a>正向代理（Forward Proxy）</h3><p>隱藏的是 <strong>用戶端的 IP</strong>，主要用於幫助用戶端訪問外部資源。常見用途包括：</p>
+<ul>
+<li><strong>匿名瀏覽</strong>：避免暴露真實 IP，提高隱私性。</li>
+<li><strong>突破地區限制</strong>：訪問受地區限制的網站或服務（如使用 VPN 或 SOCKS Proxy 瀏覽海外內容）。</li>
+<li><strong>緩存加速</strong>：在企業內部使用 HTTP&#x2F;HTTPS Proxy 提高網頁訪問效率。</li>
+</ul>
+<h3 id="反向代理（Reverse-Proxy）"><a href="#反向代理（Reverse-Proxy）" class="headerlink" title="反向代理（Reverse Proxy）"></a>反向代理（Reverse Proxy）</h3><p>隱藏的是 <strong>伺服器的 IP</strong>，位於伺服器端，幫助內部伺服器處理外部請求。常見用途包括：</p>
+<ul>
+<li><strong>保護伺服器安全</strong>：避免內部伺服器暴露在互聯網，降低攻擊風險。</li>
+<li><strong>流量分配</strong>：將流量分發到多台伺服器以平衡負載（如 Nginx ）</li>
+<li><strong>內容加速與緩存</strong>：透過 CDN 提供靜態資源加速和流量節省。</li>
+</ul>
+<hr>
+<h1 id="利用-SSH-D-實現-SOCKS5-Proxy"><a href="#利用-SSH-D-實現-SOCKS5-Proxy" class="headerlink" title="利用 SSH -D 實現 SOCKS5 Proxy"></a>利用 SSH -D 實現 SOCKS5 Proxy</h1><h2 id="事前準備"><a href="#事前準備" class="headerlink" title="事前準備"></a>事前準備</h2><ul>
+<li>VPS: 一台在雲端的虛擬私人伺服器，這邊使用 Linode，作為代理伺服器。</li>
+<li>本地機器：需要通過 SOCKS5 Proxy 繞過地區限制或隱藏真實 IP 的設備。</li>
+</ul>
+<h2 id="實際測試流程"><a href="#實際測試流程" class="headerlink" title="實際測試流程"></a>實際測試流程</h2><h3 id="1-啟用-SOCKS5-Proxy"><a href="#1-啟用-SOCKS5-Proxy" class="headerlink" title="1. 啟用 SOCKS5 Proxy"></a>1. 啟用 SOCKS5 Proxy</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ssh -D 1080 user@vps_ip</span><br></pre></td></tr></table></figure>
+<ul>
+<li>**<code>-D 1080</code>**：開啟本地端口 1080 作為 SOCKS5 Proxy 的入口。</li>
+<li>**<code>user@vps_ip</code>**：連接的遠端伺服器帳號與 IP。</li>
+<li><strong>加密隧道</strong>：數據流量經由 SSH 隧道傳輸，確保隱私和安全。<br>執行指令後，確認 SSH 成功連接且本地代理埠（如 1080）正常運行。</li>
+</ul>
+<h3 id="2-配置本地機器使用代理"><a href="#2-配置本地機器使用代理" class="headerlink" title="2. 配置本地機器使用代理"></a>2. 配置本地機器使用代理</h3><h4 id="Firefox-瀏覽器"><a href="#Firefox-瀏覽器" class="headerlink" title="Firefox 瀏覽器"></a>Firefox 瀏覽器</h4><ol>
+<li>進入「設定 &gt; 一般 &gt; 網路設定 &gt; 連線設定」。</li>
+<li>選擇「手動設定 Proxy」：<ul>
+<li>SOCKS 主機：<code>127.0.0.1</code></li>
+<li>埠號：<code>1080</code></li>
+<li>協議：選擇 SOCKS5。 <img src="Firefox 配置.png" alt="Firefox" style="border: 1px solid black;width: 60%;"></li>
+</ul>
+</li>
+<li>保存設置後測試連線。</li>
+<li>查看 Ip <img src="IP 查看.png" alt="Test" style="display: inline; border: 1px solid black;"></li>
+</ol>
+<h4 id="Chrome-瀏覽器"><a href="#Chrome-瀏覽器" class="headerlink" title="Chrome 瀏覽器"></a>Chrome 瀏覽器</h4><ol>
+<li><p>安裝 SwitchyOmega 套件</p>
+</li>
+<li><p>新增情景模式</p>
+ <img src="Chrome 配置.png" alt="Chrome" style="display: inline; border: 1px solid black;">
+</li>
+<li><p>啟用測試</p>
+</li>
+<li><p>查看 Ip</p>
+</li>
+</ol>
+<hr>
+<h1 id="補充"><a href="#補充" class="headerlink" title="補充"></a>補充</h1><h2 id="Netflix-測試"><a href="#Netflix-測試" class="headerlink" title="Netflix 測試"></a>Netflix 測試</h2><p>使用 <code>ssh -D</code> 成功設置了 SOCKS5 Proxy，並測試 Netflix 的訪問。結果顯示：</p>
+<ul>
+<li><strong>代理效果</strong>：代理生效且成功切換至日本版內容，說明 SOCKS5 Proxy 隧道正常運作。</li>
+<li><strong>登入受限</strong>：在嘗試登入帳號時，多次遭到阻擋，推測可能原因為 Netflix 偵測到代理行為或伺服器 IP 被標記為非正常流量來源。<br>該方法適合短期代理需求，但對 Netflix 等流媒體應用仍有限制。</li>
+</ul>
+<hr>
+<h2 id="SOCKS5-Proxy-與-VPN-的對比"><a href="#SOCKS5-Proxy-與-VPN-的對比" class="headerlink" title="SOCKS5 Proxy 與 VPN 的對比"></a><strong>SOCKS5 Proxy 與 VPN 的對比</strong></h2><table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>SOCKS5 Proxy（SSH -D）</strong></th>
+<th><strong>VPN</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>加密範圍</strong></td>
+<td>代理應用層流量（特定應用程式，例如瀏覽器）。</td>
+<td>全系統流量（包括 DNS 和所有網路活動）。</td>
+</tr>
+<tr>
+<td><strong>代理層級</strong></td>
+<td>應用層（僅代理特定應用程式的流量）。</td>
+<td>網路層（包括所有網路流量和系統應用）。</td>
+</tr>
+<tr>
+<td><strong>適用場景</strong></td>
+<td>短期臨時使用、匿名瀏覽、特定流量的代理需求。</td>
+<td>長期穩定使用、影音流媒體、全面隱私保護。</td>
+</tr>
+<tr>
+<td><strong>被偵測風險</strong></td>
+<td>高，容易被流媒體服務檢測到。</td>
+<td>低，通常能繞過流媒體檢測。</td>
+</tr>
+<tr>
+<td><strong>配置難度</strong></td>
+<td>簡單，僅需設置應用程式代理端口。</td>
+<td>需要安裝專用軟體並配置 VPN 憑證。</td>
+</tr>
+<tr>
+<td><strong>用途</strong></td>
+<td>適合短期匿名需求，例如遊戲、影音、網頁代理。</td>
+<td>適合長期使用，提供全面安全和隱私保護。</td>
+</tr>
+</tbody></table>
+<h2 id="Linode搭建VPN"><a href="#Linode搭建VPN" class="headerlink" title="Linode搭建VPN"></a>Linode搭建VPN</h2><p>如果需要更穩定的代理服務，可以考慮使用 Linode 搭建 OpenVPN：</p>
+<h3 id="參考文章"><a href="#參考文章" class="headerlink" title="參考文章"></a><strong>參考文章</strong></h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.linode.com/marketplace/apps/linode/openvpn/">Linode OpenVPN Marketplace App</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/hexo_next_blog/tags/VPS/" rel="tag"># VPS</a>
+              <a href="/hexo_next_blog/tags/Proxy/" rel="tag"># Proxy</a>
+              <a href="/hexo_next_blog/tags/SSH/" rel="tag"># SSH</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/hexo_next_blog/2024/10/08/20241008/" rel="prev" title="Flask && Google Authenticator 雙因素驗證(2FA) 練習">
+                  <i class="fa fa-angle-left"></i> Flask && Google Authenticator 雙因素驗證(2FA) 練習
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/hexo_next_blog/js/comments.js"></script><script src="/hexo_next_blog/js/utils.js"></script><script src="/hexo_next_blog/js/motion.js"></script><script src="/hexo_next_blog/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/hexo_next_blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
