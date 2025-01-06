@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="nl_wmR_0k14r3e054p2rbknAvVR-s5mFGhnBdS6cGLc" />
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="我在 Windows 開發時常用三個工具：moudey&#x2F;Shell，xpipe和 Ngrok。這些工具幫助我在開發更便利，想記錄下來。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows 開發環境好用工具紀錄">
+<meta property="og:url" content="https://blog.haogooday.fun/2025/01/06/20250106/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="我在 Windows 開發時常用三個工具：moudey&#x2F;Shell，xpipe和 Ngrok。這些工具幫助我在開發更便利，想記錄下來。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/01/06/20250106/moudey-Shell.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/01/06/20250106/xpipe-1.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/01/06/20250106/xpipe-2.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/01/06/20250106/Ngrok.jpg">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/01/06/20250106/Oh%20My%20Posh.png">
+<meta property="article:published_time" content="2025-01-06T09:49:37.000Z">
+<meta property="article:modified_time" content="2025-01-06T09:49:37.000Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="Ngrok">
+<meta property="article:tag" content="Windows">
+<meta property="article:tag" content="開發工具">
+<meta property="article:tag" content="moudey&#x2F;Shell">
+<meta property="article:tag" content="xpipe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.haogooday.fun/2025/01/06/20250106/moudey-Shell.png">
+
+
+<link rel="canonical" href="https://blog.haogooday.fun/2025/01/06/20250106/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2025/01/06/20250106/","path":"2025/01/06/20250106/","title":"Windows 開發環境好用工具紀錄"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Windows 開發環境好用工具紀錄 | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-moudey-Shell"><span class="nav-number">1.</span> <span class="nav-text">1. moudey&#x2F;Shell</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E8%87%B3%E5%8A%9F%E8%83%BD%E7%B4%B0%E7%AF%80"><span class="nav-number">1.1.</span> <span class="nav-text">移至功能細節</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-xpipe"><span class="nav-number">2.</span> <span class="nav-text">2. xpipe</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Ngrok"><span class="nav-number">3.</span> <span class="nav-text">3. Ngrok</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B5%90%E8%AB%96"><span class="nav-number">4.</span> <span class="nav-text">結論</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Oh-My-Posh-%E5%8F%83%E8%80%83%E9%80%A3%E7%B5%90"><span class="nav-number">4.1.</span> <span class="nav-text">Oh My Posh 參考連結</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2025/01/06/20250106/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Windows 開發環境好用工具紀錄 | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Windows 開發環境好用工具紀錄
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2025-01-06 17:49:37" itemprop="dateCreated datePublished" datetime="2025-01-06T17:49:37+08:00">2025-01-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/Windows/" itemprop="url" rel="index"><span itemprop="name">Windows</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2025/01/06/20250106/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2025/01/06/20250106/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>794</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>2 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>我在 <strong>Windows</strong> 開發時常用三個工具：<strong>moudey&#x2F;Shell</strong>，<strong>xpipe</strong>和 <strong>Ngrok</strong>。這些工具幫助我在開發更便利，想記錄下來。</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="1-moudey-Shell"><a href="#1-moudey-Shell" class="headerlink" title="1. moudey&#x2F;Shell"></a>1. <strong>moudey&#x2F;Shell</strong></h1><p><a target="_blank" rel="noopener" href="https://github.com/moudey/shell">GitHub 連結</a></p>
+<p><strong>moudey&#x2F;Shell</strong> 優化 Windows 中右鍵單擊桌面、檔案、資料夾或工作列時出現的選單；除了介面直覺和美觀外，其中有一個我很常用的功能：</p>
+<ul>
+<li><strong>右鍵的移至功能</strong>：這個功能可以快速打開目標資料夾，不用自己一層層點開。</li>
+</ul>
+<h2 id="移至功能細節"><a href="#移至功能細節" class="headerlink" title="移至功能細節"></a>移至功能細節</h2><ul>
+<li>可以快速移動到系統資料夾，如 <strong>Windows</strong>，<strong>Desktop</strong>，<strong>Documents</strong>，以及系統設定相關的「控制台」和「執行」功能等等。</li>
+</ul>
+<img src="moudey-Shell.png" alt="" style="display: inline; border: 1px solid black;">
+
+<hr>
+<h1 id="2-xpipe"><a href="#2-xpipe" class="headerlink" title="2. xpipe"></a>2. <strong>xpipe</strong></h1><p><a target="_blank" rel="noopener" href="https://xpipe.io/">官網連結</a></p>
+<p><strong>xpipe</strong> 能讓我更方便地操作與檢視遠程機器。以下幾個是我常用功能：</p>
+<ul>
+<li><strong>支援遠程遠程機器的連線</strong>：能記住密碼快速連線，免去重複輸入密碼的麻煩。</li>
+<li><strong>快速瀏覽或編輯遠程機器的檔案</strong>，並可直接使用 VS Code 或其他工具編輯遠程檔案。</li>
+<li><strong>查看遠程程序運行狀態</strong>：可以檢視 Docker 容器、Kubernetes 、Hyper-V 等執行狀態。<img src="xpipe-1.png" alt="" style="display: inline; border: 1px solid black;">
+<img src="xpipe-2.png" alt="" style="display: inline; border: 1px solid black;"></li>
+</ul>
+<hr>
+<h1 id="3-Ngrok"><a href="#3-Ngrok" class="headerlink" title="3. Ngrok"></a>3. <strong>Ngrok</strong></h1><p><a target="_blank" rel="noopener" href="https://ngrok.com/">官網連結</a></p>
+<p><strong>Ngrok</strong> 是一款內網穿透工具，非常適合本地開發專案的測試與分享，尤其是需要公開本地服務時。</p>
+<ul>
+<li><strong>快速網絡映射</strong>：可將本地服務映射到公開網址，讓測試和分享開發成果變得更簡單。</li>
+<li><strong>支援 HTTPS</strong>：即使是本地服務，也能快速建立安全的 HTTPS 通訊，無需額外配置憑證。</li>
+<li><strong>Web Interface</strong>：能清楚地看到所有的請求和回應，在進行除錯時特別有幫助，很適合測試 API。</li>
+</ul>
+<img src="Ngrok.jpg" alt="" style="display: inline; border: 1px solid black;">
+
+<hr>
+<h1 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h1><p>除了這三個實用的工具外，如果常用 CMD 操作，還推薦安裝 <strong>Oh My Posh</strong>，它可以強化指令提示和美化外觀。<br><img src="Oh My Posh.png" alt="" style="display: inline; border: 1px solid black;"></p>
+<h2 id="Oh-My-Posh-參考連結"><a href="#Oh-My-Posh-參考連結" class="headerlink" title="Oh My Posh 參考連結"></a>Oh My Posh 參考連結</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://ohmyposh.dev/docs/migrating">Oh My Posh 官方網站</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.kwchang0831.dev/dev-env/pwsh/oh-my-posh">Oh My Posh 部落格教學</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=u_LbDWqYUJg">YouTube 教學影片 Oh My Posh with Autocomplete</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ngrok/" rel="tag"># Ngrok</a>
+              <a href="/tags/Windows/" rel="tag"># Windows</a>
+              <a href="/tags/%E9%96%8B%E7%99%BC%E5%B7%A5%E5%85%B7/" rel="tag"># 開發工具</a>
+              <a href="/tags/moudey-Shell/" rel="tag"># moudey/Shell</a>
+              <a href="/tags/xpipe/" rel="tag"># xpipe</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/11/27/20241127/" rel="prev" title="SOCKS5 Proxy 實作">
+                  <i class="fa fa-angle-left"></i> SOCKS5 Proxy 實作
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
