@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="nl_wmR_0k14r3e054p2rbknAvVR-s5mFGhnBdS6cGLc" />
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在 AWS Lambda 開發 Python 應用程式時，當遇到以下錯誤時： Unable to import module &#x27;lambda_function&#x27;: No module named &#x27;PIL&#x27; 表示 Lambda 缺少 PIL（Pillow）套件，需要手動安裝並上傳 Layer。這篇文章記錄解決的方法，以下的範例用安裝 Pillow 舉例，透過">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWS Lambda 使用 Python 套件的紀錄">
+<meta property="og:url" content="https://blog.haogooday.fun/2025/03/13/20250314/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="在 AWS Lambda 開發 Python 應用程式時，當遇到以下錯誤時： Unable to import module &#x27;lambda_function&#x27;: No module named &#x27;PIL&#x27; 表示 Lambda 缺少 PIL（Pillow）套件，需要手動安裝並上傳 Layer。這篇文章記錄解決的方法，以下的範例用安裝 Pillow 舉例，透過">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/03/13/20250314/pypi%E4%B8%8B%E8%BC%89%E9%A0%81%E9%9D%A2.png">
+<meta property="article:published_time" content="2025-03-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-12T16:00:00.000Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="AWS Lambda">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.haogooday.fun/2025/03/13/20250314/pypi%E4%B8%8B%E8%BC%89%E9%A0%81%E9%9D%A2.png">
+
+
+<link rel="canonical" href="https://blog.haogooday.fun/2025/03/13/20250314/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2025/03/13/20250314/","path":"2025/03/13/20250314/","title":"AWS Lambda 使用 Python 套件的紀錄"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>AWS Lambda 使用 Python 套件的紀錄 | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%9D%E5%A5%97%E4%BB%B6%E4%B8%A6%E5%A3%93%E7%B8%AE%E4%B8%8A%E5%82%B3%EF%BC%88%E9%81%A9%E7%94%A8-Linux%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">本地安裝套件並壓縮上傳（適用 Linux）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A5%E9%A9%9F"><span class="nav-number">1.1.</span> <span class="nav-text">步驟</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Windows-%E7%9A%84%E9%99%90%E5%88%B6"><span class="nav-number">1.2.</span> <span class="nav-text">Windows 的限制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%B0-PyPI-%E4%B8%8B%E8%BC%89%E5%A5%97%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">到 PyPI 下載套件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Docker-%E5%AE%B9%E5%99%A8%E4%BE%86%E9%83%A8%E7%BD%B2-Lambda-%E7%A8%8B%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">使用 Docker 容器來部署 Lambda 程式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%E6%BA%96%E5%82%99"><span class="nav-number">3.1.</span> <span class="nav-text">前置準備</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A5%E9%A9%9F-1"><span class="nav-number">3.2.</span> <span class="nav-text">步驟</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E5%AE%83"><span class="nav-number">4.</span> <span class="nav-text">其它</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B5%90%E8%AB%96"><span class="nav-number">5.</span> <span class="nav-text">結論</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2025/03/13/20250314/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="AWS Lambda 使用 Python 套件的紀錄 | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AWS Lambda 使用 Python 套件的紀錄
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2025-03-13 00:00:00" itemprop="dateCreated datePublished" datetime="2025-03-13T00:00:00+08:00">2025-03-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/AWS/Lambda/" itemprop="url" rel="index"><span itemprop="name">Lambda</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2025/03/13/20250314/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2025/03/13/20250314/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>2.7k</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>7 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在 AWS Lambda 開發 Python 應用程式時，當遇到以下錯誤時：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Unable to import module &#x27;lambda_function&#x27;: No module named &#x27;PIL&#x27;</span><br></pre></td></tr></table></figure>
+<p>表示 Lambda 缺少 PIL（Pillow）套件，需要手動安裝並上傳 Layer。這篇文章記錄解決的方法，以下的範例用安裝 <code>Pillow</code> 舉例，透過製作 AWS Lambda 層所需要的 ZIP 檔案或用 Docker 容器來建置映像檔來解決。</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="本地安裝套件並壓縮上傳（適用-Linux）"><a href="#本地安裝套件並壓縮上傳（適用-Linux）" class="headerlink" title="本地安裝套件並壓縮上傳（適用 Linux）"></a>本地安裝套件並壓縮上傳（適用 Linux）</h1><p>這種方式適合簡單的套件管理，可以在本機完成所有依賴安裝，然後上傳到 AWS Lambda。</p>
+<h2 id="步驟"><a href="#步驟" class="headerlink" title="步驟"></a><strong>步驟</strong></h2><ol>
+<li>建立一個新的資料夾，例如 <code>lambda_package</code>：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> lambda_package</span><br><span class="line"><span class="built_in">cd</span> lambda_package</span><br></pre></td></tr></table></figure></li>
+<li>安裝所需的套件到該資料夾內：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">pip install -t . pillow</span><br></pre></td></tr></table></figure></li>
+<li>命名資料夾為 <code>python</code>，並壓縮成 ZIP 檔案，上傳到 <code>Layer</code>：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mv</span> lambda_package python</span><br><span class="line">zip -r package.zip python</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Windows-的限制"><a href="#Windows-的限制" class="headerlink" title="Windows 的限制"></a><strong>Windows 的限制</strong></h2><ul>
+<li><p>上述方法適用於 Linux 環境，但在 Windows 上會缺少相關依賴，導致 Lambda 執行錯誤。例如 pillow 就會缺少 <code>pillow.libs/</code>的資料夾；不過一些較簡單的套件不會有這問題，例如 <code>requests </code> 因為它們只依賴標準 Python 庫。</p>
+</li>
+<li><p><strong>替代方案</strong>：</p>
+<ol>
+<li><p>用 Docker 快速啟動環境 Amazon Linux，然後建立對應版本的虛擬環境，安裝套件並壓縮成 ZIP。</p>
+   <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -it amazonlinux:2023 bash</span><br><span class="line">sudo apt install python3.9-venv</span><br><span class="line">python3.9 -m venv venv</span><br><span class="line"><span class="built_in">source</span> venv/bin/activate</span><br><span class="line">pip install pillow -t python</span><br><span class="line">zip -r package.zip python</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用 <code>docker cp</code> 抓出 ZIP，上傳到 <code>Layer</code></p>
+   <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker <span class="built_in">cp</span> &lt;容器ID&gt;:&lt;容器內檔案路徑&gt; &lt;本機儲存路徑&gt;</span><br><span class="line"><span class="comment"># 複製到本地</span></span><br><span class="line">docker <span class="built_in">cp</span> &lt;容器ID&gt;:/root/package.zip .</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ul>
+<hr>
+<h1 id="到-PyPI-下載套件"><a href="#到-PyPI-下載套件" class="headerlink" title="到 PyPI 下載套件"></a>到 <a target="_blank" rel="noopener" href="https://pypi.org/">PyPI</a> 下載套件</h1><ol>
+<li><p>前往 <a target="_blank" rel="noopener" href="https://pypi.org/">PyPI</a> <strong>搜尋 Pillow</strong>，並確保選擇對應的 Python 版本（如 3.9）與 Linux 版本</p>
+<img src="pypi下載頁面.png" alt="" style="display: inline; border: 1px solid black;">
+</li>
+<li><p>下載後，將 <code>.whl</code> 副檔名改為 <code>.zip</code>，再解壓縮：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mv</span> pillow-11.1.0-cp39-cp39-manylinux_2_28_x86_64.whl pillow-11.1.0.zip</span><br><span class="line">unzip pillow-11.1.0.zip -d python</span><br><span class="line">zip -r package.zip python</span><br></pre></td></tr></table></figure></li>
+<li><p>上傳 <code>package.zip</code> 到 AWS Lambda 層。</p>
+</li>
+</ol>
+<hr>
+<h1 id="使用-Docker-容器來部署-Lambda-程式"><a href="#使用-Docker-容器來部署-Lambda-程式" class="headerlink" title="使用 Docker 容器來部署 Lambda 程式"></a>使用 Docker 容器來部署 Lambda 程式</h1><p>當使用較大的套件或有特殊需求時，建立 Lambda 可使用容器映像來建立，會比較快。</p>
+<h2 id="前置準備"><a href="#前置準備" class="headerlink" title="前置準備"></a>前置準備</h2><p>需要先安裝並配置 AWS CLI，參考 <a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html">AWS CLI 官方文件</a>。</p>
+<h2 id="步驟-1"><a href="#步驟-1" class="headerlink" title="步驟"></a><strong>步驟</strong></h2><ol>
+<li>**建立 <code>Dockerfile</code>**：<figure class="highlight dockerfile"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> public.ecr.aws/lambda/python:<span class="number">3.9</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> app.py requirements.txt ./</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> pip install -r requirements.txt</span></span><br><span class="line"><span class="comment"># 設定 Lambda 進入點</span></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;app.lambda_handler&quot;</span>]</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>建立 <code>requirements.txt</code>，把所需套件寫入</strong>：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pillow</span><br></pre></td></tr></table></figure></li>
+<li>**建立 Lambda 函式<code>app.py</code>**：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">lambda_handler</span>(<span class="params">event, context</span>):</span><br><span class="line">    img = Image.new(<span class="string">&quot;RGB&quot;</span>, (<span class="number">10</span>, <span class="number">10</span>), color=(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>))</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">&quot;statusCode&quot;</span>: <span class="number">200</span>,</span><br><span class="line">        <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Pillow 測試成功！&quot;</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>建立 Docker 映像並推送至 AWS ECR</strong>：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 打包 Docker 映像</span></span><br><span class="line">docker build -t my-lambda-function .</span><br><span class="line"></span><br><span class="line"><span class="comment"># 登入 AWS ECR</span></span><br><span class="line"><span class="comment"># &lt;aws-account-id&gt; 替換為您的 AWS 帳號 ID，</span></span><br><span class="line"><span class="comment"># &lt;region&gt; 替換為 AWS 區域（例如 us-east-1）。</span></span><br><span class="line">aws ecr get-login-password | docker login --username AWS --password-stdin &lt;aws-account-id&gt;.dkr.ecr.&lt;region&gt;.amazonaws.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立 ECR 倉儲</span></span><br><span class="line">aws ecr create-repository --repository-name my-lambda-function</span><br><span class="line"></span><br><span class="line"><span class="comment"># 標記 (tag) &amp; 推送映像檔</span></span><br><span class="line">docker tag my-lambda-function:latest &lt;aws-account-id&gt;.dkr.ecr.&lt;region&gt;.amazonaws.com/my-lambda-function:latest</span><br><span class="line">docker push &lt;aws-account-id&gt;.dkr.ecr.&lt;region&gt;.amazonaws.com/my-lambda-function:latest</span><br></pre></td></tr></table></figure></li>
+<li><strong>在 AWS Lambda 建立中，選擇「容器映像」作為執行環境，並選擇剛剛建立的映象檔案</strong></li>
+</ol>
+<hr>
+<h1 id="其它"><a href="#其它" class="headerlink" title="其它"></a><strong>其它</strong></h1><ul>
+<li><strong>Lambda 層的固定規則</strong>：<ol>
+<li>壓縮檔只接受 ZIP 格式。</li>
+<li>壓縮檔內套件的目錄名稱必須為<code>python</code>，否則 Lambda 會無法讀取。</li>
+</ol>
+</li>
+<li><strong>Lambda 容器部署範例：S3 PDF 轉圖片</strong><br>🔗 <a target="_blank" rel="noopener" href="https://github.com/HSUHAOBM/python_note/tree/main/example/aws_services/Lambda/lambda_pdf_converter">GitHub 範例程式碼：Lambda PDF Converter</a></li>
+</ul>
+<hr>
+<h1 id="結論"><a href="#結論" class="headerlink" title="結論"></a><strong>結論</strong></h1><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>敘述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>本地環境壓縮 ZIP（Linux）</strong></td>
+<td>簡單直接，可快速上傳 Lambda 層</td>
+</tr>
+<tr>
+<td><strong>從 PyPI 下載 <code>.whl</code> 轉 <code>.zip</code></strong></td>
+<td>適合在不同本地環境下載適用的 <code>.whl</code></td>
+</tr>
+<tr>
+<td><strong>使用 Docker 容器</strong></td>
+<td>支援複雜依賴</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/AWS-Lambda/" rel="tag"># AWS Lambda</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/01/06/20250106/" rel="prev" title="Windows 開發環境好用工具紀錄">
+                  <i class="fa fa-angle-left"></i> Windows 開發環境好用工具紀錄
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
