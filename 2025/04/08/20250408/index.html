@@ -124,7 +124,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E6%B3%95%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">解法概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Table-%E9%87%8D%E5%BB%BA%E6%AD%A5%E9%A9%9F"><span class="nav-number">1.1.</span> <span class="nav-text">Table 重建步驟</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A8%E6%A0%BC%E5%84%B2%E5%AD%98%E7%A9%BA%E9%96%93%E8%A7%80%E5%AF%9F"><span class="nav-number">2.</span> <span class="nav-text">表格儲存空間觀察</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%88%8A%E8%A1%A8%EF%BC%881-12-GB%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">舊表（1.12 GB）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B0%E8%A1%A8%EF%BC%88%E9%87%8D%E5%BB%BA%E5%BE%8C%EF%BC%8C113-MB%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">新表（重建後，113 MB）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%88%E8%83%BD%E6%AF%94%E8%BC%83%E8%A8%98%E9%8C%84"><span class="nav-number">3.</span> <span class="nav-text">效能比較記錄</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%88%8A%E8%A1%A8%E3%80%81%E5%B7%B2%E6%B8%85%E9%99%A4-SHARED-POOL%EF%BC%88%E7%B4%84-6-%E7%A7%92%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">舊表、已清除 SHARED_POOL（約 6 秒）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%9D%E5%B0%8D%E5%84%AA%E5%8C%96-SQL-%E5%BE%8C%EF%BC%88%E7%B4%84-3-%E7%A7%92%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">針對優化 SQL 後（約 3 秒）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E9%87%8D%E5%BB%BA-Tablespace-%E5%88%86%E9%9B%A2%EF%BC%8833-%E6%AF%AB%E7%A7%92%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">表重建 + Tablespace 分離（33 毫秒）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AA%E9%87%9D%E5%B0%8D%E5%96%AE%E7%8D%A8%E8%A1%A8%E5%84%AA%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">只針對單獨表優化?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B5%90%E8%AB%96"><span class="nav-number">5.</span> <span class="nav-text">結論</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E6%B3%95%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">解法概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Table-%E9%87%8D%E5%BB%BA%E6%AD%A5%E9%A9%9F"><span class="nav-number">1.1.</span> <span class="nav-text">Table 重建步驟</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A8%E6%A0%BC%E5%84%B2%E5%AD%98%E7%A9%BA%E9%96%93%E8%A7%80%E5%AF%9F"><span class="nav-number">2.</span> <span class="nav-text">表格儲存空間觀察</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%88%8A%E8%A1%A8%EF%BC%881-12-GB%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">舊表（1.12 GB）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B0%E8%A1%A8%EF%BC%88%E9%87%8D%E5%BB%BA%E5%BE%8C%EF%BC%8C113-MB%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">新表（重建後，113 MB）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%88%E8%83%BD%E6%AF%94%E8%BC%83%E8%A8%98%E9%8C%84"><span class="nav-number">3.</span> <span class="nav-text">效能比較記錄</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%88%8A%E8%A1%A8%E3%80%81%E5%B7%B2%E6%B8%85%E9%99%A4-SHARED-POOL%EF%BC%88%E7%B4%84-6-%E7%A7%92%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">舊表、已清除 SHARED_POOL（約 6 秒）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%9D%E5%B0%8D%E5%84%AA%E5%8C%96-SQL-%E5%BE%8C%EF%BC%88%E7%B4%84-3-%E7%A7%92%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">針對優化 SQL 後（約 3 秒）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E9%87%8D%E5%BB%BA-Tablespace-%E5%88%86%E9%9B%A2%EF%BC%8833-%E6%AF%AB%E7%A7%92%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">表重建 + Tablespace 分離（33 毫秒）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E8%A3%9C%E5%85%85"><span class="nav-number">4.</span> <span class="nav-text">其它補充</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AA%E9%87%9D%E5%B0%8D%E5%96%AE%E7%8D%A8%E8%A1%A8%E5%84%AA%E5%8C%96"><span class="nav-number">4.1.</span> <span class="nav-text">只針對單獨表優化?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%88%E6%9C%89%E5%90%8D%E8%A9%9E"><span class="nav-number">4.2.</span> <span class="nav-text">專有名詞</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#LMT%EF%BC%88Locally-Managed-Tablespace%EF%BC%89"><span class="nav-number">4.2.1.</span> <span class="nav-text">LMT（Locally Managed Tablespace）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SSM%EF%BC%88Segment-Space-Management%EF%BC%89"><span class="nav-number">4.2.2.</span> <span class="nav-text">SSM（Segment Space Management）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ASM%EF%BC%88Automatic-Storage-Management%EF%BC%89"><span class="nav-number">4.2.3.</span> <span class="nav-text">ASM（Automatic Storage Management）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B5%90%E8%AB%96"><span class="nav-number">5.</span> <span class="nav-text">結論</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -253,14 +253,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">文章字數：</span>
-      <span>1.8k</span>
+      <span>2.4k</span>
     </span>
     <span class="post-meta-item" title="所需閱讀時間">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
-      <span>4 分鐘</span>
+      <span>6 分鐘</span>
     </span>
 </div>
 
@@ -339,15 +339,30 @@
 
 <h3 id="表重建-Tablespace-分離（33-毫秒）"><a href="#表重建-Tablespace-分離（33-毫秒）" class="headerlink" title="表重建 + Tablespace 分離（33 毫秒）"></a>表重建 + Tablespace 分離（33 毫秒）</h3><img src="33毫秒.jpg" alt="重構後新表" style="display: inline; border: 1px solid black;">
 
-<h2 id="只針對單獨表優化"><a href="#只針對單獨表優化" class="headerlink" title="只針對單獨表優化?"></a>只針對單獨表優化?</h2><p>查詢資料時，我也詢問 AI 是否能針對單一資料表進行優化，<br>常見建議是使用以下語法針對表空間進行收縮：</p>
+<h2 id="其它補充"><a href="#其它補充" class="headerlink" title="其它補充"></a>其它補充</h2><h3 id="只針對單獨表優化"><a href="#只針對單獨表優化" class="headerlink" title="只針對單獨表優化?"></a>只針對單獨表優化?</h3><p>查詢資料時，我也詢問 AI 是否能針對單一資料表進行優化，<br>常見建議是使用以下語法，針對表空間進行收縮：</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> ORG_WORK_SCHEDULE ENABLE <span class="type">ROW</span> MOVEMENT;</span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> ORG_WORK_SCHEDULE SHRINK SPACE;</span><br></pre></td></tr></table></figure>
 <p>實際詢問 DBA 後補充如下：</p>
 <ol>
-<li>SHRINK SPACE 會對 Tablespace 產生 I&#x2F;O 負擔，應避開系統忙碌時段。</li>
-<li>若僅針對單一表處理，成效有限；若多數表一起執行，空間整理效果較佳</li>
-<li>SHRINK 操作屬於會產生變更的指令，會記錄在 redo&#x2F;undo log 中，因此也會佔用一定資源。</li>
+<li><strong>SHRINK SPACE</strong> 的使用前提是該資料表的 <strong>Tablespace</strong> 必須是：</li>
+</ol>
+<ul>
+<li>在建立時必須是 Locally Managed Tablespace（LMT）</li>
+<li>設定啟用 Segment Space Management（SSM）&#x3D; AUTO</li>
+</ul>
+<ol start="2">
+<li><p>雖然我們沒有啟用 ASM（Automatic Storage Management），而是 DBA 手動管理資料檔與 Tablespace，但 SHRINK 是否能用，其實和 ASM 無直接關係，重點還是在 Tablespace 本身的屬性（LMT + AUTO SSM）。<strong>這並不代表 ASM 不好，只是我們環境沒啟用，自行管理更符合目前的維運，因此這次優化選擇以表重建作為最佳解法。</strong></p>
+</li>
+<li><p>SHRINK SPACE 會對 Tablespace 產生 I&#x2F;O 負擔，應避開系統忙碌時段。</p>
+</li>
+<li><p>若僅針對單一表處理，成效有限；若多數表一起執行，空間整理效果較佳</p>
+</li>
+<li><p>SHRINK 操作屬於會產生變更的指令，會記錄在 redo&#x2F;undo log 中，因此也會佔用一定資源。</p>
+</li>
 </ol>
 <p>雖然可用，但效果有限，最後仍選擇以表重建搭配 Tablespace 分離來優化。<br>白話就是說，問題不只在這張表，整個 Tablespace 中其他表也可能碎掉。<br>只整理其中一張，就像只清理桌面，但整個房間還是亂的，走起來還是卡。</p>
+<h3 id="專有名詞"><a href="#專有名詞" class="headerlink" title="專有名詞"></a>專有名詞</h3><h4 id="LMT（Locally-Managed-Tablespace）"><a href="#LMT（Locally-Managed-Tablespace）" class="headerlink" title="LMT（Locally Managed Tablespace）"></a>LMT（Locally Managed Tablespace）</h4><p>Oracle 提供的一種 <strong>表空間管理方式</strong>，資料表空間會自動記錄哪些區塊被使用過。</p>
+<h4 id="SSM（Segment-Space-Management）"><a href="#SSM（Segment-Space-Management）" class="headerlink" title="SSM（Segment Space Management）"></a>SSM（Segment Space Management）</h4><p>Oracle 提供的一種 <strong>資料表內部空間管理方式</strong>，決定要不要自動追蹤與回收每張表的可用空間。</p>
+<h4 id="ASM（Automatic-Storage-Management）"><a href="#ASM（Automatic-Storage-Management）" class="headerlink" title="ASM（Automatic Storage Management）"></a>ASM（Automatic Storage Management）</h4><p>Oracle 提供的一種 <strong>磁碟檔案管理方式</strong>，會自動決定 <code>.dbf</code> 資料檔該放在哪、如何配置空間。如果是 DBA 自己設 <code>.dbf</code> 路徑，就是非 ASM 模式，兩者選哪個看環境需求。</p>
 <h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><p>SQL 語法與資料表結構雖然很重要，但資料儲存位置、空間使用狀況等硬體層面的優化，同樣會對效能帶來顯著影響。<br>這是一次蠻有感的優化，雖然只是簡單的「搬資料」和「調整位置」，但效能提升超出預期，也感謝公司 DBA 的協助，讓我學到不少。</p>
 
     </div>
