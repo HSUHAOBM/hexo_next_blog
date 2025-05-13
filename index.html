@@ -126,18 +126,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">文章</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">分類</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">26</span>
         <span class="site-state-item-name">標籤</span></a>
       </div>
   </nav>
@@ -162,6 +162,129 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2025/05/13/20250513/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/05/13/20250513/" class="post-title-link" itemprop="url">Oracle 連線未釋放 & 無原始碼情況下用 dnSpy 反向處理</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2025-05-13 14:43:02" itemprop="dateCreated datePublished" datetime="2025-05-13T14:43:02+08:00">2025-05-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/Debug/" itemprop="url" rel="index"><span itemprop="name">Debug</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/Debug/Oracle/" itemprop="url" rel="index"><span itemprop="name">Oracle</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2025/05/13/20250513/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2025/05/13/20250513/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>861</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>2 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>最近透過 <strong>TOAD for Oracle</strong> 的 Session Browser 觀察資料庫連線時，發現某台網站主機長期保留大量 Oracle 連線，長時間處於 <code>INACTIVE</code> 狀態，未自動釋放，導致連線數接近上限，這是一個極為異常的情況。</p>
+<p>據了解，這台主機的網站服務多次出現異常，經常由公司監控系統通知該網站服務掛掉，但始終找不出具體原因。推測，這些未釋放的資料庫連線很可能是造成網站不穩的主因之一。判斷可能是該系統未正確操作資料庫，導致連線未釋放。詢問前輩後得知，該系統為 C# Web Form 架構，且僅保留已編譯的 DLL，無原始碼可參考，這讓後續處理變得更加困難。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/05/13/20250513/#more" rel="contents">
+                閱讀全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -950,11 +1073,11 @@
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Learn/Docker/" itemprop="url" rel="index"><span itemprop="name">Docker</span></a>
+          <a href="/categories/Learn/Nginx/" itemprop="url" rel="index"><span itemprop="name">Nginx</span></a>
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Learn/Nginx/" itemprop="url" rel="index"><span itemprop="name">Nginx</span></a>
+          <a href="/categories/Learn/Docker/" itemprop="url" rel="index"><span itemprop="name">Docker</span></a>
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -1076,11 +1199,11 @@
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Learn/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+          <a href="/categories/Learn/Docker/" itemprop="url" rel="index"><span itemprop="name">Docker</span></a>
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Learn/Docker/" itemprop="url" rel="index"><span itemprop="name">Docker</span></a>
+          <a href="/categories/Learn/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -1271,121 +1394,9 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/1992/06/10/20240321/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Ian">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="HaoGooday">
-      <meta itemprop="description" content="學習與工作記錄">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | HaoGooday">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/1992/06/10/20240321/" class="post-title-link" itemprop="url">2024/4/1 從 Medium 到 Hexo</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">發表於</span>
-
-      <time title="創建時間：1992-06-10 00:00:00" itemprop="dateCreated datePublished" datetime="1992-06-10T00:00:00+08:00">1992-06-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分類於</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Life/" itemprop="url" rel="index"><span itemprop="name">Life</span></a>
-        </span>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus：</span>
-    
-    <a title="disqus" href="/1992/06/10/20240321/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="1992/06/10/20240321/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="文章字數">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">文章字數：</span>
-      <span>118</span>
-    </span>
-    <span class="post-meta-item" title="所需閱讀時間">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
-      <span>1 分鐘</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>我曾在 Medium 試寫部落格，<br>如今轉向 Hexo 框架，搭配 GitHub Page 建立了新的部落格。</p>
-<p>現在，我能夠更自由地分享我的想法和經驗，<br>不再受訂閱或平台限制。期待未來能持續記錄生活與相關的學習。<br>為自己的學習歷程找到容身之處。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/1992/06/10/20240321/#more" rel="contents">
-                閱讀全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" title="下一頁" aria-label="下一頁" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
 
 </div>
   </main>
