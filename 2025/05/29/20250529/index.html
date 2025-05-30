@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="nl_wmR_0k14r3e054p2rbknAvVR-s5mFGhnBdS6cGLc" />
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在近期研究 GitHub 與 GitLab 跑 CI&#x2F;CD 流程時，瞭解到現在流程中開始會加入整合安全性檢查(SEC)，如 Python 使用 Bandit 等工具。這次會特別關注 SonarQube，是因為在尋找適合 C# 的靜態分析工具時，發現它不僅支援 .NET Framework 和 .NET Core，也具備強大的多語言分析能力。其實以前就聽過 SonarQube，但因為需要自">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SonarQube">
+<meta property="og:url" content="https://blog.haogooday.fun/2025/05/29/20250529/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="在近期研究 GitHub 與 GitLab 跑 CI&#x2F;CD 流程時，瞭解到現在流程中開始會加入整合安全性檢查(SEC)，如 Python 使用 Bandit 等工具。這次會特別關注 SonarQube，是因為在尋找適合 C# 的靜態分析工具時，發現它不僅支援 .NET Framework 和 .NET Core，也具備強大的多語言分析能力。其實以前就聽過 SonarQube，但因為需要自">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/05/29/20250529/sonarqube_project_create.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/05/29/20250529/sonarqube_analysis_select.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/05/29/20250529/sonarqube_project_info.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/05/29/20250529/sonarqube_project_token.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/05/29/20250529/sonarqube_language_example.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/05/29/20250529/sonarqube_python_flask.png">
+<meta property="article:published_time" content="2025-05-29T07:24:54.000Z">
+<meta property="article:modified_time" content="2025-05-29T07:24:54.000Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="CICD">
+<meta property="article:tag" content="SonarQube">
+<meta property="article:tag" content="DevOps">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.haogooday.fun/2025/05/29/20250529/sonarqube_project_create.png">
+
+
+<link rel="canonical" href="https://blog.haogooday.fun/2025/05/29/20250529/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2025/05/29/20250529/","path":"2025/05/29/20250529/","title":"SonarQube"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SonarQube | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SonarQube-%E6%9E%B6%E6%A7%8B"><span class="nav-number">1.</span> <span class="nav-text">SonarQube 架構</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Docker-%E9%83%A8%E7%BD%B2"><span class="nav-number">2.</span> <span class="nav-text">使用 Docker 部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E6%AC%A1%E7%99%BB%E5%85%A5"><span class="nav-number">3.</span> <span class="nav-text">首次登入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8B%E5%B0%88%E6%A1%88"><span class="nav-number">4.</span> <span class="nav-text">建立專案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A8%E9%80%81%E5%88%86%E6%9E%90%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">5.</span> <span class="nav-text">推送分析的方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E4%BD%BF%E7%94%A8-Docker-%E6%8E%A8%E9%80%81-%E9%81%A9%E5%90%88%E9%9D%9E%E7%B7%A8%E8%AD%AF%E5%9E%8B%E8%AA%9E%E8%A8%80"><span class="nav-number">5.1.</span> <span class="nav-text">本地使用 Docker 推送(適合非編譯型語言)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B7%A8%E8%AD%AF%E5%9E%8B%E8%AA%9E%E8%A8%80%E6%8E%A8%E9%80%81-%E5%A6%82-NET-Framework-NET-Core"><span class="nav-number">5.2.</span> <span class="nav-text">編譯型語言推送(如 .NET Framework&#x2F;.NET Core)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#NET-Framework-%E7%AF%84%E4%BE%8B"><span class="nav-number">5.2.1.</span> <span class="nav-text">.NET Framework 範例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NET-Core-%E7%AF%84%E4%BE%8B"><span class="nav-number">5.2.2.</span> <span class="nav-text">.NET Core 範例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A3%9C%E5%85%85"><span class="nav-number">5.2.3.</span> <span class="nav-text">補充</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E7%B7%A8%E8%AD%AF%E5%9E%8B%E8%AA%9E%E8%A8%80-%E5%A6%82-Python%E3%80%81JS"><span class="nav-number">5.3.</span> <span class="nav-text">非編譯型語言(如 Python、JS)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E5%AE%83"><span class="nav-number">6.</span> <span class="nav-text">其它</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%8D%E5%A4%96%E8%B3%87%E6%BA%90"><span class="nav-number">6.1.</span> <span class="nav-text">額外資源</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8B%E8%BC%89%E7%AC%AC%E4%B8%89%E6%96%B9%E8%B3%87%E6%BA%90%E7%AF%84%E4%BE%8B-%E4%BB%8B%E9%9D%A2%E6%9B%B4%E6%96%B0%E7%82%BA%E4%B8%AD%E6%96%87"><span class="nav-number">6.1.1.</span> <span class="nav-text">下載第三方資源範例(介面更新為中文)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E8%A9%A2%E7%89%88%E6%9C%AC%E8%B3%87%E8%A8%8A"><span class="nav-number">6.2.</span> <span class="nav-text">查詢版本資訊</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SonarCloud-%E9%9B%B2%E7%AB%AF%E6%9C%8D%E5%8B%99"><span class="nav-number">6.3.</span> <span class="nav-text">SonarCloud 雲端服務</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8E%E5%85%A5-GitLab-CI-%E7%AF%84%E4%BE%8B"><span class="nav-number">6.4.</span> <span class="nav-text">導入 GitLab CI 範例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B5%90%E8%AA%9E"><span class="nav-number">7.</span> <span class="nav-text">結語</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2025/05/29/20250529/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SonarQube | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SonarQube
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2025-05-29 15:24:54" itemprop="dateCreated datePublished" datetime="2025-05-29T15:24:54+08:00">2025-05-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/CICD/" itemprop="url" rel="index"><span itemprop="name">CICD</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/CICD/SonarQube/" itemprop="url" rel="index"><span itemprop="name">SonarQube</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2025/05/29/20250529/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2025/05/29/20250529/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>6k</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>15 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在近期研究 GitHub 與 GitLab 跑 CI&#x2F;CD 流程時，瞭解到現在流程中開始會加入整合安全性檢查(SEC)，如 Python 使用 Bandit 等工具。這次會特別關注 SonarQube，是因為在尋找適合 C# 的靜態分析工具時，發現它不僅支援 .NET Framework 和 .NET Core，也具備強大的多語言分析能力。其實以前就聽過 SonarQube，但因為需要自行架設，一直沒有實際用過。這次趁著跑 CI&#x2F;CD，決定學習部署並整合到開發流程。</p>
+<span id="more"></span>
+<p>SonarQube 是一套靜態程式碼分析工具，能在不執行程式的情況下分析原始碼品質與潛在問題。它可檢查命名風格是否一致、是否有未使用的變數、潛在的 NullReferenceException、硬編碼的密碼、重複邏輯、技術債指標，甚至提供資安建議如 SQL Injection 風險偵測等，對於提升程式碼可讀性與長期可維護性非常有幫助。</p>
+<h2 id="SonarQube-架構"><a href="#SonarQube-架構" class="headerlink" title="SonarQube 架構"></a>SonarQube 架構</h2><p>SonarQube 主要由三個元件組成：</p>
+<ul>
+<li>SonarQube(Web UI、Elasticsearch)</li>
+<li>資料庫(PostgreSQL)</li>
+<li>SonarScanner(開發者本地執行，負責將掃描結果送回 SonarQube Server)</li>
+</ul>
+<h2 id="使用-Docker-部署"><a href="#使用-Docker-部署" class="headerlink" title="使用 Docker 部署"></a>使用 Docker 部署</h2><p>我個人推薦使用 Docker Compose 部署，能大幅簡化安裝與設定流程。可參考官方文件 <a target="_blank" rel="noopener" href="https://docs.sonarsource.com/sonarqube-server/9.9/setup-and-upgrade/install-the-server/#installing-sonarqube-from-the-docker-image">Installing SonarQube from the Docker image</a>，以下為官方建議範例：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;3&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">sonarqube:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">sonarqube:community</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">db</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">SONAR_JDBC_URL:</span> <span class="string">jdbc:postgresql://db:5432/sonar</span></span><br><span class="line">      <span class="attr">SONAR_JDBC_USERNAME:</span> <span class="string">sonar</span></span><br><span class="line">      <span class="attr">SONAR_JDBC_PASSWORD:</span> <span class="string">sonar</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">sonarqube_data:/opt/sonarqube/data</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">sonarqube_extensions:/opt/sonarqube/extensions</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">sonarqube_logs:/opt/sonarqube/logs</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;9000:9000&quot;</span></span><br><span class="line">  <span class="attr">db:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">postgres:12</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">POSTGRES_USER:</span> <span class="string">sonar</span></span><br><span class="line">      <span class="attr">POSTGRES_PASSWORD:</span> <span class="string">sonar</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">postgresql:/var/lib/postgresql</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">postgresql_data:/var/lib/postgresql/data</span></span><br><span class="line"></span><br><span class="line"><span class="attr">volumes:</span></span><br><span class="line">  <span class="attr">sonarqube_data:</span></span><br><span class="line">  <span class="attr">sonarqube_extensions:</span></span><br><span class="line">  <span class="attr">sonarqube_logs:</span></span><br><span class="line">  <span class="attr">postgresql:</span></span><br><span class="line">  <span class="attr">postgresql_data:</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>若遇到 <code>vm.max_map_count [65530] is too low, increase to at least [262144]</code>，這是因為 SonarQube 依賴 Elasticsearch，需要較高的記憶體分頁數(vm.max_map_count)。請執行：</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sysctl -w vm.max_map_count=262144</span><br></pre></td></tr></table></figure>
+
+<h2 id="首次登入"><a href="#首次登入" class="headerlink" title="首次登入"></a>首次登入</h2><p>部署完成後，瀏覽器開啟 <a target="_blank" rel="noopener" href="http://localhost:9000/">http://localhost:9000</a><br>預設帳號密碼皆為 admin，首次登入會要求更改密碼。</p>
+<h2 id="建立專案"><a href="#建立專案" class="headerlink" title="建立專案"></a>建立專案</h2><ol>
+<li><p>點選右上 Manually，這邊可以選自己的流程，也會有簡單的範例。如果是手動推送可以直接選 Manually，我自己會先在本地測試過後，才導入 CICD 流程中。</p>
+<img src="sonarqube_project_create.png" alt="建立專案畫面" style="display: inline; border: 1px solid black;">
+<img src="sonarqube_analysis_select.png" alt="選擇分析方式" style="display: inline; border: 1px solid black;">
+</li>
+<li><p>選 Manually 到下個畫面輸入 Project display name、Project key、Main branch name。</p>
+<ul>
+<li>Project display name：專案顯示名稱，方便辨識。</li>
+<li>Project key：專案唯一識別碼，後續推送分析時需填入此 key。</li>
+<li>Main branch name：主要分支。</li>
+</ul>
+<img src="sonarqube_project_info.png" alt="專案資訊填入" style="display: inline; border: 1px solid black;">
+</li>
+<li><p>建立專案 token，推送的時候會用到，可建立全新或使用過去建好的。</p>
+<img src="sonarqube_project_token.png" alt="專案資訊填入" style="display: inline; border: 1px solid black;">
+</li>
+<li><p>依照選擇的程式語言，頁面會顯示對應的推送指令範例參考。</p>
+<img src="sonarqube_language_example.png" alt="語言推送指令範例" style="display: inline; border: 1px solid black;"></li>
+</ol>
+<h2 id="推送分析的方法"><a href="#推送分析的方法" class="headerlink" title="推送分析的方法"></a>推送分析的方法</h2><h3 id="本地使用-Docker-推送-適合非編譯型語言"><a href="#本地使用-Docker-推送-適合非編譯型語言" class="headerlink" title="本地使用 Docker 推送(適合非編譯型語言)"></a>本地使用 Docker 推送(適合非編譯型語言)</h3><p>此方法適用於如 Python 不需編譯的語言，需編譯的語言，雖然也會推送成功，但但缺乏編譯過程產出的中介資訊，分析結果會較不完整。</p>
+<blockquote>
+<p>補充說明：<br>由於 Windows Docker 預設無法直接存取公司內網服務，因此才需要用 <code>host.docker.internal</code> 讓容器能存取本機網路。我的 SonarQube 主機是部署在公司內網的其他機器，如果你的情境不是這樣，可以直接跳過這段說明，並直接連到對應的 <code>&lt;sonarqube_host&gt;</code>。若是像我一樣，使用 SonarQube 在內網，需額外處理網路(我是使用 SSH 通道，或將本地 localhost 轉發到內網主機)。如果公司內部網路有嚴格限制，這類方式可能會失敗，總之需確保本地端能用 localhost 連到 SonarQube 網站。<br>若在 Linux，則可直接用 <code>--network=host</code> 參數，讓容器直接使用主機網路即可。</p>
+</blockquote>
+<p><em>Windows 範例：</em></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run --<span class="built_in">rm</span> `</span><br><span class="line">  -e SONAR_HOST_URL=<span class="string">&quot;http://host.docker.internal:9000&quot;</span> `</span><br><span class="line">  -e SONAR_LOGIN=<span class="string">&quot;&lt;your_token&gt;&quot;</span> `</span><br><span class="line">  -e SONAR_SCANNER_OPTS=<span class="string">&quot;-Dsonar.projectKey=&lt;your_project_key&gt; -Dsonar.sources=. -Dsonar.sourceEncoding=UTF-8&quot;</span> `</span><br><span class="line">  -v <span class="string">&quot;C:\EUEIP:/usr/src&quot;</span> `</span><br><span class="line">  sonarsource/sonar-scanner-cli:5.0</span><br></pre></td></tr></table></figure>
+
+<p><em>Linux 範例：</em></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run --<span class="built_in">rm</span> --network=host \</span><br><span class="line">  -e SONAR_HOST_URL=<span class="string">&quot;http://&lt;sonarqube_host&gt;:9000&quot;</span> \</span><br><span class="line">  -e SONAR_SCANNER_OPTS=<span class="string">&quot;-Dsonar.projectKey=&lt;your_project_key&gt; -Dsonar.sources=. -Dsonar.inclusions=**/*&quot;</span> \</span><br><span class="line">  -e SONAR_LOGIN=<span class="string">&quot;&lt;your_token&gt;&quot;</span> \</span><br><span class="line">  -v /home/user/web/flask_cicd_demo:/usr/src \</span><br><span class="line">  sonarsource/sonar-scanner-cli:5.0</span><br></pre></td></tr></table></figure>
+
+<h3 id="編譯型語言推送-如-NET-Framework-NET-Core"><a href="#編譯型語言推送-如-NET-Framework-NET-Core" class="headerlink" title="編譯型語言推送(如 .NET Framework&#x2F;.NET Core)"></a>編譯型語言推送(如 .NET Framework&#x2F;.NET Core)</h3><blockquote>
+<p>以下範例皆以 Windows 環境為主。</p>
+</blockquote>
+<h4 id="NET-Framework-範例"><a href="#NET-Framework-範例" class="headerlink" title=".NET Framework 範例"></a>.NET Framework 範例</h4><ol>
+<li>初始化掃描 + 建立分析目錄</li>
+<li>用 MSBuild 編譯，產生中介資料</li>
+<li>上傳並分析結果到 SonarQube</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SonarScanner.MSBuild.exe begin /k:<span class="string">&quot;&lt;your_project_key&gt;&quot;</span> /d:sonar.host.url=<span class="string">&quot;http://&lt;sonarqube_host&gt;:9000&quot;</span> /d:sonar.login=<span class="string">&quot;&lt;your_token&gt;&quot;</span></span><br><span class="line"></span><br><span class="line">&amp; <span class="string">&quot;&lt;your_solution_path&gt;&quot;</span> /t:Rebuild  <span class="comment"># &lt;your_solution_path&gt; .sln 檔案完整路徑</span></span><br><span class="line"></span><br><span class="line">SonarScanner.MSBuild.exe end /d:sonar.login=<span class="string">&quot;&lt;your_token&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="NET-Core-範例"><a href="#NET-Core-範例" class="headerlink" title=".NET Core 範例"></a>.NET Core 範例</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dotnet sonarscanner begin /k:<span class="string">&quot;&lt;your_project_key&gt;&quot;</span> /d:sonar.host.url=<span class="string">&quot;http://&lt;sonarqube_host&gt;:9000&quot;</span>  /d:sonar.login=<span class="string">&quot;&lt;your_token&gt;&quot;</span></span><br><span class="line">dotnet build</span><br><span class="line">dotnet sonarscanner end /d:sonar.login=<span class="string">&quot;&lt;your_token&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="補充"><a href="#補充" class="headerlink" title="補充"></a>補充</h4><blockquote>
+<p>若遇到 <code>ERROR: JAVA_HOME not found in your environment</code>，請安裝 Java(如用 choco 安裝 openjdk)：</p>
+<p>這是因為 SonarScanner 需要 Java 環境才能執行，若系統未安裝 Java，會出現上述錯誤。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">choco install openjdk</span><br></pre></td></tr></table></figure>
+
+<h3 id="非編譯型語言-如-Python、JS"><a href="#非編譯型語言-如-Python、JS" class="headerlink" title="非編譯型語言(如 Python、JS)"></a>非編譯型語言(如 Python、JS)</h3><p>需根據作業環境安裝 <a target="_blank" rel="noopener" href="https://docs.sonarsource.com/sonarqube-server/9.9/analyzing-source-code/scanners/sonarscanner/">SonarScanner</a>，只需要簡單一行指令即可：</p>
+<p><em>Windows 指令範例：</em></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sonar-scanner.bat -D<span class="string">&quot;sonar.projectKey=&lt;your_project_key&gt;&quot;</span> -D<span class="string">&quot;sonar.sources=.&quot;</span> -D<span class="string">&quot;sonar.host.url=http://&lt;sonarqube_host&gt;:9000&quot;</span> -D<span class="string">&quot;sonar.login=&lt;your_token&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><em>Linux 指令範例：</em></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sonar-scanner   -Dsonar.projectKey=&lt;your_project_key&gt;   -Dsonar.sources=.   -Dsonar.host.url=http://&lt;sonarqube_host&gt;:9000   -Dsonar.login=&lt;your_token&gt;</span><br></pre></td></tr></table></figure>
+
+<p><em>Linux 安裝 sonar-scanner 步驟：</em></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 建立工具目錄</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/tools</span><br><span class="line"><span class="comment"># 下載並解壓縮</span></span><br><span class="line">wget -O ~/tools/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.1.0.4889-linux-x64.zip</span><br><span class="line">unzip ~/tools/sonar-scanner.zip -d ~/tools/</span><br><span class="line"><span class="comment"># 移動並設定路徑</span></span><br><span class="line"><span class="built_in">mv</span> ~/tools/sonar-scanner-7.1.0.4889-linux-x64 ~/tools/sonar-scanner</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">&quot;<span class="variable">$HOME</span>/tools/sonar-scanner/bin:<span class="variable">$PATH</span>&quot;</span>  <span class="comment"># 加入環境變數</span></span><br><span class="line"><span class="built_in">source</span> ~/.bashrc    <span class="comment"># 或 source ~/.zshrc，讓路徑立即生效</span></span><br><span class="line">sonar-scanner -v    <span class="comment"># 驗證安裝</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><h3 id="額外資源"><a href="#額外資源" class="headerlink" title="額外資源"></a>額外資源</h3><p>在 Administration 的 Marketplace 有許多額外的資源包可以下載，也可以尋找第三方社群製作的，手動加入到伺服器上。</p>
+<h4 id="下載第三方資源範例-介面更新為中文"><a href="#下載第三方資源範例-介面更新為中文" class="headerlink" title="下載第三方資源範例(介面更新為中文)"></a>下載第三方資源範例(介面更新為中文)</h4><p>可參考 <a target="_blank" rel="noopener" href="https://github.com/xuhuisheng/sonar-l10n-zh">sonar-l10n-zh</a> 專案，下載中文語言包：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget https://github.com/xuhuisheng/sonar-l10n-zh/releases/download/sonar-l10n-zh-plugin-9.9/sonar-l10n-zh-plugin-9.9.jar</span><br><span class="line">docker <span class="built_in">cp</span> sonar-l10n-zh-plugin-9.9.jar sonarqube-sonarqube-1:/opt/sonarqube/extensions/plugins/</span><br><span class="line">docker compose restart</span><br></pre></td></tr></table></figure>
+
+<h3 id="查詢版本資訊"><a href="#查詢版本資訊" class="headerlink" title="查詢版本資訊"></a>查詢版本資訊</h3><ul>
+<li>UI 介面：Administration → System</li>
+<li>直接瀏覽 <a target="_blank" rel="noopener" href="http://sonarqube_host:9000/api/server/version">http://sonarqube_host:9000/api/server/version</a></li>
+</ul>
+<p>範例：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SonarQube ID information</span><br><span class="line">Server ID: 243B8A4D-AZbmqJXFyEGqCyo66aci</span><br><span class="line">Version: 9.9.8.100196</span><br><span class="line">Date: 2025-05-29</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="SonarCloud-雲端服務"><a href="#SonarCloud-雲端服務" class="headerlink" title="SonarCloud 雲端服務"></a><a target="_blank" rel="noopener" href="https://sonarcloud.io/">SonarCloud 雲端服務</a></h3><blockquote>
+<p>SonarCloud 是 SonarQube 的雲端服務版本，由官方托管，適合不想自架伺服器的人使用。</p>
+</blockquote>
+<p>簡易步驟大致如下：</p>
+<ul>
+<li>前往 SonarCloud 註冊並建立 Token</li>
+<li>授權 GitHub，匯入專案</li>
+<li>視情況關閉 Automatic Analysis（否則與 CI&#x2F;CD 分析流程可能衝突）</li>
+</ul>
+<h3 id="導入-GitLab-CI-範例"><a href="#導入-GitLab-CI-範例" class="headerlink" title="導入 GitLab CI 範例"></a>導入 GitLab CI 範例</h3><p>我有將 <code>.gitlab-ci.yml</code> 範例放在 GitHub 上。CI 配置範例涵蓋 .NET 8 與 Python Flask 兩種語言，請直接參考各專案中的 CI 設定內容。由於我的 GitLab 與 SonarQube 都部署在公司內網，因此沒有使用 GitHub Actions。</p>
+<ul>
+<li>🔗 <a target="_blank" rel="noopener" href="https://github.com/HSUHAOBM/dotnet_cicd_demo">.NET 8 範例</a></li>
+<li>🔗 <a target="_blank" rel="noopener" href="https://github.com/HSUHAOBM/flask_cicd_demo">Python Flask 範例</a></li>
+</ul>
+<hr>
+<h2 id="結語"><a href="#結語" class="headerlink" title="結語"></a>結語</h2><p>這是我使用 Python Flask 專案推送至 SonarQube 後的分析畫面：<br><img src="sonarqube_python_flask.png" alt="SonarQube 掃描成果畫面" style="border:1px solid #ccc;"></p>
+<p>以上是我部署 SonarQube 並整合至開發流程的經驗。SonarQube 在多語言支援與自動化整合上表現非常好，適合有需求的團隊導入。使用下來，發現它能偵測出多元且細緻的問題，特別是在命名、結構、重複邏輯、安全性、過時或不安全的加密演算法，以及 jQuery 舊版套件等方面都會給予提示，並會提供解決方案的建議。如果是長期累積的大型專案，初次掃描時可能會發現非常多問題，雖然數量龐大，但這正是需要面對與改善的開始😂😂😂。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/CICD/" rel="tag"># CICD</a>
+              <a href="/tags/SonarQube/" rel="tag"># SonarQube</a>
+              <a href="/tags/DevOps/" rel="tag"># DevOps</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/13/20250513/" rel="prev" title="Oracle 連線未釋放 & 無原始碼情況下用 dnSpy 反向處理">
+                  <i class="fa fa-angle-left"></i> Oracle 連線未釋放 & 無原始碼情況下用 dnSpy 反向處理
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
