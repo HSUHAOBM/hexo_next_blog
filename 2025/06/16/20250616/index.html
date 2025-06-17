@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="nl_wmR_0k14r3e054p2rbknAvVR-s5mFGhnBdS6cGLc" />
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="記錄如何在受限網路環境（如社區網路、多層 NAT）中，無法直接對內部設備進行 SSH 連線的情況下，透過免費的 Cloudflare Tunnel 服務，實現 HTTP 與 SSH 的內網穿透與遠端存取。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 Cloudflare Tunnel 實現內網服務穿透與 SSH 連線">
+<meta property="og:url" content="https://blog.haogooday.fun/2025/06/16/20250616/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="記錄如何在受限網路環境（如社區網路、多層 NAT）中，無法直接對內部設備進行 SSH 連線的情況下，透過免費的 Cloudflare Tunnel 服務，實現 HTTP 與 SSH 的內網穿透與遠端存取。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/06/16/20250616/testpage.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/06/16/20250616/tunnel_create.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/06/16/20250616/env_setup.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/06/16/20250616/local_url.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/06/16/20250616/tunnel_done.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/06/16/20250616/ssh_publicname.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/06/16/20250616/ssh_setting.png">
+<meta property="article:published_time" content="2025-06-16T03:20:28.000Z">
+<meta property="article:modified_time" content="2025-06-16T03:20:28.000Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="Cloudflare">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.haogooday.fun/2025/06/16/20250616/testpage.png">
+
+
+<link rel="canonical" href="https://blog.haogooday.fun/2025/06/16/20250616/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2025/06/16/20250616/","path":"2025/06/16/20250616/","title":"使用 Cloudflare Tunnel 實現內網服務穿透與 SSH 連線"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用 Cloudflare Tunnel 實現內網服務穿透與 SSH 連線 | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%92%B0%E5%A2%83%E8%AA%AA%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">環境說明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E5%89%8D%E6%BA%96%E5%82%99"><span class="nav-number">2.</span> <span class="nav-text">事前準備</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP-%E6%9C%8D%E5%8B%99%E7%A9%BF%E9%80%8F%E6%95%99%E5%AD%B8"><span class="nav-number">3.</span> <span class="nav-text">HTTP 服務穿透教學</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSH-%E6%9C%8D%E5%8B%99%E7%A9%BF%E9%80%8F"><span class="nav-number">4.</span> <span class="nav-text">SSH 服務穿透</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A3%9C%E5%85%85%EF%BC%9AWindows-%E5%AE%89%E8%A3%9D-OpenSSH-Server"><span class="nav-number">5.</span> <span class="nav-text">補充：Windows 安裝 OpenSSH Server</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B5%90%E8%AB%96"><span class="nav-number">6.</span> <span class="nav-text">結論</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E6%96%87%E4%BB%B6"><span class="nav-number">7.</span> <span class="nav-text">參考文件</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2025/06/16/20250616/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用 Cloudflare Tunnel 實現內網服務穿透與 SSH 連線 | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用 Cloudflare Tunnel 實現內網服務穿透與 SSH 連線
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2025-06-16 11:20:28" itemprop="dateCreated datePublished" datetime="2025-06-16T11:20:28+08:00">2025-06-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/Cloudflare/" itemprop="url" rel="index"><span itemprop="name">Cloudflare</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2025/06/16/20250616/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2025/06/16/20250616/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>1.6k</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>4 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>記錄如何在受限網路環境（如社區網路、多層 NAT）中，無法直接對內部設備進行 SSH 連線的情況下，透過免費的 Cloudflare Tunnel 服務，實現 HTTP 與 SSH 的內網穿透與遠端存取。</p>
+<span id="more"></span>
+
+<h2 id="環境說明"><a href="#環境說明" class="headerlink" title="環境說明"></a>環境說明</h2><ul>
+<li>所處網路為社區型結構，內部架有小米路由器，外部還有一層網路控管。</li>
+<li>無法從外部直接 SSH 連入設備，即使已在路由器中設定 Port Forward 也無效。</li>
+<li>目標設備作業系統為 Windows。</li>
+</ul>
+<h2 id="事前準備"><a href="#事前準備" class="headerlink" title="事前準備"></a>事前準備</h2><ul>
+<li>一組 Domain</li>
+<li>完成 Cloudflare 帳號註冊</li>
+</ul>
+<hr>
+<h2 id="HTTP-服務穿透教學"><a href="#HTTP-服務穿透教學" class="headerlink" title="HTTP 服務穿透教學"></a>HTTP 服務穿透教學</h2><ol>
+<li><p><strong>在主機快速起一個測試頁面</strong><br>本機 <code>localhost:5000</code> 可連到。</p>
+<img src="testpage.png" alt="測試頁面" style="display: inline; border: 1px solid black;">
+</li>
+<li><p><strong>到 Cloudflare 把自己的網域加入</strong><br>遵循網站上的指引操作即可。</p>
+</li>
+<li><p><strong>左側選單 Cloudflare Zero Trust → 網路 → Tunnels 建立通道，選擇 cloudflared，簡單命名</strong></p>
+<img src="tunnel_create.png" alt="建立通道" style="display: inline; border: 1px solid black;">
+</li>
+<li><p><strong>環境設置（以 Windows 為例）</strong></p>
+<img src="env_setup.png" alt="環境設置" style="display: inline; border: 1px solid black;">
+
+<ul>
+<li>依序完成：<ol>
+<li>下載並安裝 cloudflared。<br><a target="_blank" rel="noopener" href="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.msi">cloudflared-windows-amd64.msi</a></li>
+<li>以系統管理員身分開啟命令提示字元。</li>
+<li>安裝服務：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cloudflared.exe service install &lt;token&gt;</span><br></pre></td></tr></table></figure>
+其他常用指令：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Get-Service cloudflared      <span class="comment"># 查詢 cloudflared 狀態</span></span><br><span class="line">Stop-Service cloudflared     <span class="comment"># 停止 cloudflared</span></span><br><span class="line">Restart-Service cloudflared  <span class="comment"># 重啟 cloudflared</span></span><br><span class="line">cloudflared.exe service uninstall  <span class="comment"># 解除安裝 cloudflared</span></span><br><span class="line">cloudflared --version   <span class="comment"># 版本查詢</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p><strong>設定穿透對應的本地網址與 port</strong></p>
+<img src="local_url.png" alt="填入本地網址" style="display: inline; border: 1px solid black;">
+</li>
+<li><p><strong>直接瀏覽剛剛的網域就完成了</strong></p>
+<img src="tunnel_done.png" alt="完成畫面" style="display: inline; border: 1px solid black;"></li>
+</ol>
+<hr>
+<h2 id="SSH-服務穿透"><a href="#SSH-服務穿透" class="headerlink" title="SSH 服務穿透"></a>SSH 服務穿透</h2><ol>
+<li><p><strong>在 Cloudflare 公用主機名稱新增公用主機名稱</strong></p>
+<img src="ssh_publicname.png" alt="新增公用主機名稱" style="display: inline; border: 1px solid black;">
+</li>
+<li><p><strong>設定如下即可</strong></p>
+<img src="ssh_setting.png" alt="SSH 設定" style="display: inline; border: 1px solid black;">
+</li>
+<li><p><strong>目標主機也要安裝 cloudflared</strong></p>
+<ul>
+<li><p>無法使用傳統 SSH 方式連線，需透過 <code>cloudflared</code> 指令或設定 <code>ProxyCommand</code>。</p>
+</li>
+<li><p>直接下指令連線範例：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ssh -o ProxyCommand=<span class="string">&quot;cloudflared access ssh --hostname ssh.haogooday.fun&quot;</span> user@ssh.haogooday.fun</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>或可在 <code>.ssh/config</code> 中設定，簡化操作：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Host ssh.haogooday.fun</span><br><span class="line">    ProxyCommand cloudflared access ssh --hostname %h</span><br><span class="line">    User user</span><br></pre></td></tr></table></figure></li>
+<li><p>之後即可直接使用：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ssh ssh.haogooday.fun</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="補充：Windows-安裝-OpenSSH-Server"><a href="#補充：Windows-安裝-OpenSSH-Server" class="headerlink" title="補充：Windows 安裝 OpenSSH Server"></a>補充：Windows 安裝 OpenSSH Server</h2><figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安裝 OpenSSH Server</span></span><br><span class="line"><span class="built_in">Add-WindowsCapability</span> <span class="literal">-Online</span> <span class="literal">-Name</span> OpenSSH.Server~~~~<span class="number">0.0</span>.<span class="number">1.0</span></span><br><span class="line"><span class="comment"># 啟動 sshd 服務</span></span><br><span class="line"><span class="built_in">Start-Service</span> sshd</span><br><span class="line"><span class="comment"># 設定 sshd 服務開機自動啟動</span></span><br><span class="line"><span class="built_in">Set-Service</span> <span class="literal">-Name</span> sshd <span class="literal">-StartupType</span> <span class="string">&#x27;Automatic&#x27;</span></span><br><span class="line"><span class="comment"># 檢查 sshd 服務狀態</span></span><br><span class="line"><span class="built_in">Get-Service</span> sshd</span><br></pre></td></tr></table></figure>
+
+<p>完成後可本機測試 SSH 是否啟用成功：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ssh localhost</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><p>Cloudflare Tunnel 是個非常實用的工具，特別適合在無法直接開放 Port，或處於多層 NAT（網路位址轉換）的社區網路環境中使用。只要建立好 Tunnel，就能安全且穩定地連回內部主機，不需額外設定防火牆或路由器，且完全免費。</p>
+<p>只要能 SSH 進去，後續就能做很多事情，例如：</p>
+<ul>
+<li>反向代理（<code>ssh -R</code>）</li>
+<li>動態轉發（<code>ssh -D</code>，SOCKS 代理）</li>
+<li>本地端口轉發（<code>ssh -L</code>）</li>
+</ul>
+<hr>
+<h2 id="參考文件"><a href="#參考文件" class="headerlink" title="參考文件"></a>參考文件</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/use-cases/ssh/ssh-cloudflared-authentication/">Cloudflare 官方 SSH 穿透教學</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Cloudflare/" rel="tag"># Cloudflare</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/29/20250529/" rel="prev" title="SonarQube">
+                  <i class="fa fa-angle-left"></i> SonarQube
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
