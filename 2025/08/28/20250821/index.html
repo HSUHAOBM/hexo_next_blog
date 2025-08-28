@@ -20,12 +20,12 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="前言最近測試了兩個 Python 工具：uv 虛擬環境管理和 Authlib 套件實現第三方登入。">
+    <meta name="description" content="最近測試了兩個 Python 工具：uv 虛擬環境管理和 Authlib 套件實現第三方登入。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Python 套件管理工具 uv 與 Authlib 套件使用測試">
 <meta property="og:url" content="https://blog.haogooday.fun/2025/08/28/20250821/index.html">
 <meta property="og:site_name" content="HaoGooday">
-<meta property="og:description" content="前言最近測試了兩個 Python 工具：uv 虛擬環境管理和 Authlib 套件實現第三方登入。">
+<meta property="og:description" content="最近測試了兩個 Python 工具：uv 虛擬環境管理和 Authlib 套件實現第三方登入。">
 <meta property="og:locale" content="zh_TW">
 <meta property="article:published_time" content="2025-08-28T07:31:10.000Z">
 <meta property="article:modified_time" content="2025-08-28T07:31:10.000Z">
@@ -116,7 +116,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Authlib"><span class="nav-number">2.</span> <span class="nav-text">Authlib</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OAuth-2-0-%E6%B5%81%E7%A8%8B-Google-%E8%88%89%E4%BE%8B"><span class="nav-number">2.1.</span> <span class="nav-text">OAuth 2.0 流程 (Google 舉例)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E4%BD%BF%E7%94%A8-Authlib-%E7%9A%84%E8%A9%B1"><span class="nav-number">2.2.</span> <span class="nav-text">不使用 Authlib 的話</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%A6%E9%9A%9B%E4%BD%BF%E7%94%A8%E6%B8%AC%E8%A9%A6-Google%E3%80%81GitHub%E3%80%81LINE"><span class="nav-number">2.3.</span> <span class="nav-text">實際使用測試(Google、GitHub、LINE)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#uv-%E5%A5%97%E4%BB%B6%E8%88%87%E8%99%9B%E6%93%AC%E7%92%B0%E5%A2%83%E7%AE%A1%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">uv 套件與虛擬環境管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%A7%A3%E6%B1%BA%E7%9A%84%E7%97%9B%E9%BB%9E"><span class="nav-number">3.1.</span> <span class="nav-text">可解決的痛點</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">基本使用</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Authlib"><span class="nav-number">1.</span> <span class="nav-text">Authlib</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OAuth-2-0-%E6%B5%81%E7%A8%8B-Google-%E8%88%89%E4%BE%8B"><span class="nav-number">1.1.</span> <span class="nav-text">OAuth 2.0 流程 (Google 舉例)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E4%BD%BF%E7%94%A8-Authlib-%E7%9A%84%E8%A9%B1"><span class="nav-number">1.2.</span> <span class="nav-text">不使用 Authlib 的話</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%A6%E9%9A%9B%E4%BD%BF%E7%94%A8%E6%B8%AC%E8%A9%A6-Google%E3%80%81GitHub%E3%80%81LINE"><span class="nav-number">1.3.</span> <span class="nav-text">實際使用測試(Google、GitHub、LINE)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#uv-%E5%A5%97%E4%BB%B6%E8%88%87%E8%99%9B%E6%93%AC%E7%92%B0%E5%A2%83%E7%AE%A1%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">uv 套件與虛擬環境管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%A7%A3%E6%B1%BA%E7%9A%84%E7%97%9B%E9%BB%9E"><span class="nav-number">2.1.</span> <span class="nav-text">可解決的痛點</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">2.2.</span> <span class="nav-text">基本使用</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -258,7 +258,7 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近測試了兩個 Python 工具：uv 虛擬環境管理和 Authlib 套件實現第三方登入。</p>
+    <div class="post-body" itemprop="articleBody"><p>最近測試了兩個 Python 工具：uv 虛擬環境管理和 Authlib 套件實現第三方登入。</p>
 <span id="more"></span>
 
 <h2 id="Authlib"><a href="#Authlib" class="headerlink" title="Authlib"></a>Authlib</h2><p>快速實現第三方登入的套件，目前測試了常用的 Google、GitHub 都可以快速搭配使用，LINE 需要小修改。Facebook 沒測試是因為註冊驗證比較嚴格，申請太久就跳過了。</p>
