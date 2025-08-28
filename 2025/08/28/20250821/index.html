@@ -20,35 +20,28 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="當初對 Ngrok 的運作感到非常驚奇，因為它能夠輕鬆實現內網穿透。因此，決定進一步練習如何在自己的環境中實現類似的功能。">
+    <meta name="description" content="前言最近測試了兩個 Python 工具：uv 虛擬環境管理和 Authlib 套件實現第三方登入。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="使用 VPS 模擬 Ngrok 透過 SSH 實現內網穿透">
-<meta property="og:url" content="https://blog.haogooday.fun/2024/09/05/20240905/index.html">
+<meta property="og:title" content="Python 套件管理工具 uv 與 Authlib 套件使用測試">
+<meta property="og:url" content="https://blog.haogooday.fun/2025/08/28/20250821/index.html">
 <meta property="og:site_name" content="HaoGooday">
-<meta property="og:description" content="當初對 Ngrok 的運作感到非常驚奇，因為它能夠輕鬆實現內網穿透。因此，決定進一步練習如何在自己的環境中實現類似的功能。">
+<meta property="og:description" content="前言最近測試了兩個 Python 工具：uv 虛擬環境管理和 Authlib 套件實現第三方登入。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://blog.haogooday.fun/2024/09/05/20240905/%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8B%99.png">
-<meta property="og:image" content="https://blog.haogooday.fun/2024/09/05/20240905/%E7%A2%BA%E8%AA%8D%E7%AB%AF%E5%8F%A3.png">
-<meta property="og:image" content="https://blog.haogooday.fun/2024/09/05/20240905/VPS%20IP%20%E9%80%A3%E7%B7%9A.png">
-<meta property="og:image" content="https://blog.haogooday.fun/2024/09/05/20240905/%E7%B6%81%E7%B6%B2%E5%9F%9F.png">
-<meta property="article:published_time" content="2024-09-05T02:36:56.000Z">
-<meta property="article:modified_time" content="2024-09-05T02:36:56.000Z">
+<meta property="article:published_time" content="2025-08-28T07:31:10.000Z">
+<meta property="article:modified_time" content="2025-08-28T07:31:10.000Z">
 <meta property="article:author" content="Ian">
-<meta property="article:tag" content="Nginx">
-<meta property="article:tag" content="Ngrok">
-<meta property="article:tag" content="VPS">
+<meta property="article:tag" content="Python,uv,Authlib,OAuth">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://blog.haogooday.fun/2024/09/05/20240905/%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8B%99.png">
 
 
-<link rel="canonical" href="https://blog.haogooday.fun/2024/09/05/20240905/">
+<link rel="canonical" href="https://blog.haogooday.fun/2025/08/28/20250821/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2024/09/05/20240905/","path":"2024/09/05/20240905/","title":"使用 VPS 模擬 Ngrok 透過 SSH 實現內網穿透"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2025/08/28/20250821/","path":"2025/08/28/20250821/","title":"Python 套件管理工具 uv 與 Authlib 套件使用測試"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>使用 VPS 模擬 Ngrok 透過 SSH 實現內網穿透 | HaoGooday</title>
+<title>Python 套件管理工具 uv 與 Authlib 套件使用測試 | HaoGooday</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
   <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
@@ -123,7 +116,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8B%E5%89%8D%E6%BA%96%E5%82%99"><span class="nav-number">1.</span> <span class="nav-text">事前準備</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E9%97%9C%E6%AD%A5%E9%A9%9F"><span class="nav-number">2.</span> <span class="nav-text">相關步驟</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#VPS-%E8%A8%AD%E7%BD%AE"><span class="nav-number">2.1.</span> <span class="nav-text">VPS 設置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E6%A9%9F%E8%A8%AD%E7%BD%AE"><span class="nav-number">2.2.</span> <span class="nav-text">主機設置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VPS-%E6%B8%AC%E8%A9%A6"><span class="nav-number">2.3.</span> <span class="nav-text">VPS 測試</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%8F%E9%81%8E-Nginx-%E7%B6%81%E4%B8%8A-Domain-%EF%BC%88%E5%8F%AF%E9%81%B8%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">透過 Nginx 綁上 Domain （可選）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">3.</span> <span class="nav-text">其他</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Authlib"><span class="nav-number">2.</span> <span class="nav-text">Authlib</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OAuth-2-0-%E6%B5%81%E7%A8%8B-Google-%E8%88%89%E4%BE%8B"><span class="nav-number">2.1.</span> <span class="nav-text">OAuth 2.0 流程 (Google 舉例)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E4%BD%BF%E7%94%A8-Authlib-%E7%9A%84%E8%A9%B1"><span class="nav-number">2.2.</span> <span class="nav-text">不使用 Authlib 的話</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%A6%E9%9A%9B%E4%BD%BF%E7%94%A8%E6%B8%AC%E8%A9%A6-Google%E3%80%81GitHub%E3%80%81LINE"><span class="nav-number">2.3.</span> <span class="nav-text">實際使用測試(Google、GitHub、LINE)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#uv-%E5%A5%97%E4%BB%B6%E8%88%87%E8%99%9B%E6%93%AC%E7%92%B0%E5%A2%83%E7%AE%A1%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">uv 套件與虛擬環境管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%A7%A3%E6%B1%BA%E7%9A%84%E7%97%9B%E9%BB%9E"><span class="nav-number">3.1.</span> <span class="nav-text">可解決的痛點</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">基本使用</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -182,7 +175,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
-    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2024/09/05/20240905/">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2025/08/28/20250821/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -195,12 +188,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="使用 VPS 模擬 Ngrok 透過 SSH 實現內網穿透 | HaoGooday">
+      <meta itemprop="name" content="Python 套件管理工具 uv 與 Authlib 套件使用測試 | HaoGooday">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          使用 VPS 模擬 Ngrok 透過 SSH 實現內網穿透
+          Python 套件管理工具 uv 與 Authlib 套件使用測試
         </h1>
 
         <div class="post-meta-container">
@@ -211,7 +204,7 @@
       </span>
       <span class="post-meta-item-text">發表於</span>
 
-      <time title="創建時間：2024-09-05 10:36:56" itemprop="dateCreated datePublished" datetime="2024-09-05T10:36:56+08:00">2024-09-05</time>
+      <time title="創建時間：2025-08-28 15:31:10" itemprop="dateCreated datePublished" datetime="2025-08-28T15:31:10+08:00">2025-08-28</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -223,11 +216,7 @@
         </span>
           ，
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Learn/Nginx/" itemprop="url" rel="index"><span itemprop="name">Nginx</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Learn/Ngrok/" itemprop="url" rel="index"><span itemprop="name">Ngrok</span></a>
+          <a href="/categories/Learn/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
         </span>
     </span>
 
@@ -240,8 +229,8 @@
       </span>
       <span class="post-meta-item-text">Disqus：</span>
     
-    <a title="disqus" href="/2024/09/05/20240905/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2024/09/05/20240905/" itemprop="commentCount"></span>
+    <a title="disqus" href="/2025/08/28/20250821/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2025/08/28/20250821/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -252,14 +241,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">文章字數：</span>
-      <span>918</span>
+      <span>1.5k</span>
     </span>
     <span class="post-meta-item" title="所需閱讀時間">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
-      <span>2 分鐘</span>
+      <span>4 分鐘</span>
     </span>
 </div>
 
@@ -269,59 +258,46 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>當初對 Ngrok 的運作感到非常驚奇，因為它能夠輕鬆實現內網穿透。<br>因此，決定進一步練習如何在自己的環境中實現類似的功能。</p>
+    <div class="post-body" itemprop="articleBody"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近測試了兩個 Python 工具：uv 虛擬環境管理和 Authlib 套件實現第三方登入。</p>
 <span id="more"></span>
 
-<h1 id="事前準備"><a href="#事前準備" class="headerlink" title="事前準備"></a>事前準備</h1><ul>
-<li>VPS: 一台在雲端的虛擬私人伺服器，個人選擇 Linode，作為公開可訪問的中繼伺服器。</li>
-<li>內部服務主機: 需要進行內網穿透的本地伺服器。</li>
-<li>Domain （可選）</li>
-</ul>
-<h1 id="相關步驟"><a href="#相關步驟" class="headerlink" title="相關步驟"></a>相關步驟</h1><h2 id="VPS-設置"><a href="#VPS-設置" class="headerlink" title="VPS 設置"></a>VPS 設置</h2><ol>
-<li><p><strong>安裝必要的軟件 OpenSSH Server</strong></p>
- <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install openssh-server</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>確認 sshd_config 配置</strong></p>
- <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo vi /etc/ssh/sshd_config</span><br></pre></td></tr></table></figure></li>
+<h2 id="Authlib"><a href="#Authlib" class="headerlink" title="Authlib"></a>Authlib</h2><p>快速實現第三方登入的套件，目前測試了常用的 Google、GitHub 都可以快速搭配使用，LINE 需要小修改。Facebook 沒測試是因為註冊驗證比較嚴格，申請太久就跳過了。</p>
+<p><a target="_blank" rel="noopener" href="https://authlib.org/">Authlib</a><br><a target="_blank" rel="noopener" href="https://github.com/authlib/demo-oauth-client">Authlib Python Demo</a></p>
+<h3 id="OAuth-2-0-流程-Google-舉例"><a href="#OAuth-2-0-流程-Google-舉例" class="headerlink" title="OAuth 2.0 流程 (Google 舉例)"></a>OAuth 2.0 流程 (Google 舉例)</h3><p>三個主要角色：<strong>使用者</strong>、<strong>Google</strong>、<strong>自身後端服務</strong></p>
+<ol>
+<li><strong>使用者點擊登入</strong> - 使用者在網站點擊「用 Google 登入」</li>
+<li><strong>跳轉到 Google</strong> - 後端服務將使用者轉向到 Google 授權</li>
+<li><strong>使用者同意授權</strong> - 使用者在 Google 頁面確認授權，同意存取基本資料</li>
+<li><strong>Google 回傳授權碼</strong> - Google 將使用者重定向回網站，並帶上一個 <code>code</code></li>
+<li><strong>後端換取 Token</strong> - 後端服務用 <code>code</code> 向 Google 換取 <code>access_token</code></li>
+<li><strong>取得使用者資料</strong> - 後端服務用 <code>access_token</code> 向 Google API 取得使用者資料</li>
 </ol>
+<p>整個過程中，後端服務永遠不會接觸到使用者的 Google 帳號密碼。<br>如想更深入理解 OAuth 2.0 流程，可先用 Python + requests 手動實作第三方登入，並不搭配任何套件，會很有感。</p>
+<h3 id="不使用-Authlib-的話"><a href="#不使用-Authlib-的話" class="headerlink" title="不使用 Authlib 的話"></a>不使用 Authlib 的話</h3><p>過去在不使用相關套件下，每個步驟都要很清楚實作細節，要實現上述 OAuth 流程，需要處理大量程式碼：</p>
 <ul>
-<li><p>確保以下設定存在：</p>
-  <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 允許 SSH 轉發功能，支持本地、遠程和動態轉發。</span></span><br><span class="line">AllowTcpForwarding <span class="built_in">yes</span></span><br><span class="line"><span class="comment"># 允許遠程轉發的端口被所有 IP 地址訪問</span></span><br><span class="line">GatewayPorts <span class="built_in">yes</span></span><br></pre></td></tr></table></figure></li>
-<li><p>修改完後重啟 SSH 服務：</p>
-  <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo systemctl restart sshd</span><br></pre></td></tr></table></figure></li>
+<li>手動組裝授權 URL 參數</li>
+<li>解析回調參數和錯誤處理</li>
+<li>實作 token 交換的 HTTP 請求</li>
+<li>管理 token 過期和刷新機制</li>
+<li>防範 CSRF 攻擊和 state 參數驗證</li>
 </ul>
-<h2 id="主機設置"><a href="#主機設置" class="headerlink" title="主機設置"></a>主機設置</h2><ol>
-<li><strong>確認本地服務正常運行</strong></li>
-</ol>
-<p>這裡使用 Flask + Redis 作為示範。</p>
-<img src="/2024/09/05/20240905/%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8B%99.png" class="" title="本地服務">
-
-<ol start="2">
-<li><strong>建立 SSH 反向端口轉發</strong><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -R：指定反向端口轉發。</span></span><br><span class="line"><span class="comment"># 9001：VPS 上的端口。</span></span><br><span class="line"><span class="comment"># localhost:3000：本地主機上的端口。</span></span><br><span class="line"><span class="comment"># user@vps_ip：你的 VPS 用戶名和 IP 地址。</span></span><br><span class="line"></span><br><span class="line">ssh -R 9001:localhost:3000 user@vps_ip</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="VPS-測試"><a href="#VPS-測試" class="headerlink" title="VPS 測試"></a>VPS 測試</h2><ol>
-<li><strong>測試是否成功連接</strong><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 測試是否成功連上</span></span><br><span class="line">curl http://localhost:9001</span><br></pre></td></tr></table></figure></li>
-<li><strong>檢查端口是否正常開啟</strong><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo netstat -tuln | grep 9001</span><br></pre></td></tr></table></figure></li>
-</ol>
-<img src="/2024/09/05/20240905/%E7%A2%BA%E8%AA%8D%E7%AB%AF%E5%8F%A3.png" class="" title="確認端口">
-
-
-<img src="/2024/09/05/20240905/VPS%20IP%20%E9%80%A3%E7%B7%9A.png" class="" title="VPS IP 連線">
-
-<h2 id="透過-Nginx-綁上-Domain-（可選）"><a href="#透過-Nginx-綁上-Domain-（可選）" class="headerlink" title="透過 Nginx 綁上 Domain （可選）"></a>透過 Nginx 綁上 Domain （可選）</h2><ul>
-<li>增強安全性：可以通過 Nginx 設置防火牆規則、IP 過濾等來提升安全性。</li>
+<p>Authlib 已經把常用的第三方服務（Google、GitHub、X等）都包裝好了，可以快速整合使用，省去很多重複的底層實作。</p>
+<h3 id="實際使用測試-Google、GitHub、LINE"><a href="#實際使用測試-Google、GitHub、LINE" class="headerlink" title="實際使用測試(Google、GitHub、LINE)"></a>實際使用測試(Google、GitHub、LINE)</h3><p>Flask + Authlib 使用測試：<br><a target="_blank" rel="noopener" href="https://github.com/HSUHAOBM/python_note/tree/main/example/flask_authlib">Flask Authlib 使用測試</a></p>
+<hr>
+<hr>
+<h2 id="uv-套件與虛擬環境管理"><a href="#uv-套件與虛擬環境管理" class="headerlink" title="uv 套件與虛擬環境管理"></a>uv 套件與虛擬環境管理</h2><p><a target="_blank" rel="noopener" href="https://docs.astral.sh/uv/">uv</a> 用 Rust 重寫，速度快很多，使用體驗感覺像是 Node.js 開發那樣透過 npm 管理相關依賴，在專案中直接管理依賴，讓開發環境更乾淨、可重現。</p>
+<h3 id="可解決的痛點"><a href="#可解決的痛點" class="headerlink" title="可解決的痛點"></a>可解決的痛點</h3><ul>
+<li>跨平台差異：Windows 上習慣用 Anaconda，Linux 上常用 venv，導致使用體驗不一致。</li>
+<li>環境混亂：臨時測試常常懶得重建虛擬環境，導致一個環境裝了很多不相關的套件，久而久之很難管理</li>
+<li>VSCode 能自動偵測：使用 uv，專案資料夾中的 .venv 會被 VSCode 自動識別，無需手動切換解釋器。<br>結論：每個專案自帶獨立環境，安裝速度快，未來開發更傾向使用 uv。</li>
 </ul>
-<img src="/2024/09/05/20240905/%E7%B6%81%E7%B6%B2%E5%9F%9F.png" class="" title="綁網域">
+<h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><p>Python + Flask 專案舉例和紀錄 uv 常用指令：<br><a target="_blank" rel="noopener" href="https://github.com/HSUHAOBM/python_note/tree/main/python_uv_demo">uv demo 專案</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Linux 安裝 uv</span></span><br><span class="line">curl -LsSf https://astral.sh/uv/install.sh | sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># Windows 安裝 uv</span></span><br><span class="line">powershell -ExecutionPolicy ByPass -c <span class="string">&quot;irm https://astral.sh/uv/install.ps1 | iex&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 專案資料夾中初始化</span></span><br><span class="line">uv init</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定 Python 版本</span></span><br><span class="line">uv python pin 3.11</span><br><span class="line"></span><br><span class="line"><span class="comment"># 驗證</span></span><br><span class="line">uv run python --version</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安裝套件</span></span><br><span class="line">uv add flask</span><br><span class="line"><span class="comment"># 也可以用 pip 方式安裝</span></span><br><span class="line">uv pip install flask</span><br><span class="line"></span><br><span class="line"><span class="comment"># 執行程式</span></span><br><span class="line"><span class="comment"># Vscode 有吃到虛擬環境也可以省略 uv run</span></span><br><span class="line">uv run python app.py</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><ul>
-<li><p>SSH 通道確保持久連線</p>
-<ul>
-<li>修改 ssh&#x2F;config<br>  為防止因閒置斷開，可以每 60 秒發送一個保持活躍的訊號： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Host *</span><br><span class="line">    ServerAliveInterval 60</span><br><span class="line">    ServerAliveCountMax 5</span><br></pre></td></tr></table></figure></li>
-<li>Windows： PuTTY 或 plink… 設置</li>
-<li>Linux： autossh 或 tmux… 設置</li>
-</ul>
-</li>
-</ul>
+
+
+
+
 
     </div>
 
@@ -331,23 +307,18 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Nginx/" rel="tag"># Nginx</a>
-              <a href="/tags/Ngrok/" rel="tag"># Ngrok</a>
-              <a href="/tags/VPS/" rel="tag"># VPS</a>
+              <a href="/tags/Python-uv-Authlib-OAuth/" rel="tag"># Python,uv,Authlib,OAuth</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2024/04/19/20240419/" rel="prev" title="AWK 練習；實作自動封鎖和解封 IP 地址">
-                  <i class="fa fa-angle-left"></i> AWK 練習；實作自動封鎖和解封 IP 地址
+                <a href="/2025/07/24/20250724/" rel="prev" title="Oracle 自動化資料同步：測試環境建置">
+                  <i class="fa fa-angle-left"></i> Oracle 自動化資料同步：測試環境建置
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2024/10/08/20241008/" rel="next" title="Flask && Google Authenticator 雙因素驗證(2FA) 練習">
-                  Flask && Google Authenticator 雙因素驗證(2FA) 練習 <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>
