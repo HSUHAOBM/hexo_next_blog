@@ -255,7 +255,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">文章字數：</span>
-      <span>6k</span>
+      <span>6.2k</span>
     </span>
     <span class="post-meta-item" title="所需閱讀時間">
       <span class="post-meta-item-icon">
@@ -327,7 +327,7 @@
 <li>用 MSBuild 編譯，產生中介資料</li>
 <li>上傳並分析結果到 SonarQube</li>
 </ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SonarScanner.MSBuild.exe begin /k:<span class="string">&quot;&lt;your_project_key&gt;&quot;</span> /d:sonar.host.url=<span class="string">&quot;http://&lt;sonarqube_host&gt;:9000&quot;</span> /d:sonar.login=<span class="string">&quot;&lt;your_token&gt;&quot;</span></span><br><span class="line"></span><br><span class="line">&amp; <span class="string">&quot;&lt;your_solution_path&gt;&quot;</span> /t:Rebuild  <span class="comment"># &lt;your_solution_path&gt; .sln 檔案完整路徑</span></span><br><span class="line"></span><br><span class="line">SonarScanner.MSBuild.exe end /d:sonar.login=<span class="string">&quot;&lt;your_token&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SonarScanner.MSBuild.exe begin /k:<span class="string">&quot;&lt;your_project_key&gt;&quot;</span> /d:sonar.host.url=<span class="string">&quot;http://&lt;sonarqube_host&gt;:9000&quot;</span> /d:sonar.login=<span class="string">&quot;&lt;your_token&gt;&quot;</span></span><br><span class="line"></span><br><span class="line">&amp; MSBuild.exe <span class="string">&quot;&lt;your_solution_path&gt;&quot;</span> /t:Rebuild</span><br><span class="line"><span class="comment"># &lt;your_solution_path&gt; .sln 檔案完整路徑</span></span><br><span class="line"><span class="comment"># MSBuild.exe 路徑參考</span></span><br><span class="line"><span class="comment"># &quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe&quot;</span></span><br><span class="line"></span><br><span class="line">SonarScanner.MSBuild.exe end /d:sonar.login=<span class="string">&quot;&lt;your_token&gt;&quot;</span></span><br></pre></td></tr></table></figure>
 
 <h4 id="NET-Core-範例"><a href="#NET-Core-範例" class="headerlink" title=".NET Core 範例"></a>.NET Core 範例</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dotnet sonarscanner begin /k:<span class="string">&quot;&lt;your_project_key&gt;&quot;</span> /d:sonar.host.url=<span class="string">&quot;http://&lt;sonarqube_host&gt;:9000&quot;</span>  /d:sonar.login=<span class="string">&quot;&lt;your_token&gt;&quot;</span></span><br><span class="line">dotnet build</span><br><span class="line">dotnet sonarscanner end /d:sonar.login=<span class="string">&quot;&lt;your_token&gt;&quot;</span></span><br></pre></td></tr></table></figure>
 
