@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="nl_wmR_0k14r3e054p2rbknAvVR-s5mFGhnBdS6cGLc" />
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="最近在實作 GitLab CI，有個專案是 C# .NET Framework，現有的 Linux Runner 使用 docker executor 不太適用於 Windows 專案的建置。 查了一下發現 Windows 主機上也可以部署 GitLab Runner，記錄一下安裝過程和遇到的問題。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows 環境下部署 GitLab Runner">
+<meta property="og:url" content="https://blog.haogooday.fun/2025/09/23/20250923/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="最近在實作 GitLab CI，有個專案是 C# .NET Framework，現有的 Linux Runner 使用 docker executor 不太適用於 Windows 專案的建置。 查了一下發現 Windows 主機上也可以部署 GitLab Runner，記錄一下安裝過程和遇到的問題。">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2025-09-23T05:41:29.000Z">
+<meta property="article:modified_time" content="2025-09-23T05:41:29.000Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="GitLab,CI&#x2F;CD,Windows,Runner">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.haogooday.fun/2025/09/23/20250923/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2025/09/23/20250923/","path":"2025/09/23/20250923/","title":"Windows 環境下部署 GitLab Runner"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Windows 環境下部署 GitLab Runner | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%9D%E6%AD%A5%E9%A9%9F"><span class="nav-number">1.</span> <span class="nav-text">安裝步驟</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%8B%E8%BC%89%E8%88%87%E8%A8%BB%E5%86%8A"><span class="nav-number">1.1.</span> <span class="nav-text">1. 下載與註冊</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%9F%BA%E6%9C%AC%E6%B8%AC%E8%A9%A6"><span class="nav-number">1.2.</span> <span class="nav-text">3. 基本測試</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B8%A9%E5%9D%91%E5%95%8F%E9%A1%8C%E8%88%87%E8%A7%A3%E6%B1%BA%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">踩坑問題與解決方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%95%8F%E9%A1%8C%E4%B8%80%EF%BC%9ACI-%E5%9F%B7%E8%A1%8C%E6%99%82%E8%BC%B8%E5%87%BA%E5%87%BA%E7%8F%BE%E4%BA%82%E7%A2%BC"><span class="nav-number">2.1.</span> <span class="nav-text">問題一：CI 執行時輸出出現亂碼</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%95%8F%E9%A1%8C%E4%BA%8C%EF%BC%9A%E6%89%BE%E4%B8%8D%E5%88%B0%E5%9F%B7%E8%A1%8C%E6%AA%94%EF%BC%88MSBuild-%E6%A1%88%E4%BE%8B%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">問題二：找不到執行檔（MSBuild 案例）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E4%B8%80%EF%BC%9ACI-%E6%AA%94%E6%A1%88%E4%B8%AD%E5%AF%AB%E5%AE%8C%E6%95%B4%E8%B7%AF%E5%BE%91"><span class="nav-number">2.2.1.</span> <span class="nav-text">方案一：CI 檔案中寫完整路徑</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E4%BA%8C%EF%BC%9A%E5%8F%83%E6%95%B8%E5%8C%96%E8%AE%8A%E6%95%B8%E8%A8%AD%E7%BD%AE"><span class="nav-number">2.3.</span> <span class="nav-text">方案二：參數化變數設置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E4%B8%89%EF%BC%9Aenvironment-%E8%A8%AD%E5%AE%9A"><span class="nav-number">2.4.</span> <span class="nav-text">方案三：environment 設定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E5%9B%9B%EF%BC%9Apre-build-script%EF%BC%88%E6%8E%A8%E8%96%A6%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">方案四：pre_build_script（推薦）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8B%E4%B8%80%E9%9A%8E%E6%AE%B5%EF%BC%9A%E5%98%97%E8%A9%A6-CD-%E9%83%A8%E7%BD%B2%E6%96%B9%E6%A1%88"><span class="nav-number">2.6.</span> <span class="nav-text">下一階段：嘗試 CD 部署方案</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">37</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2025/09/23/20250923/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Windows 環境下部署 GitLab Runner | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Windows 環境下部署 GitLab Runner
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2025-09-23 13:41:29" itemprop="dateCreated datePublished" datetime="2025-09-23T13:41:29+08:00">2025-09-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/DevOps/" itemprop="url" rel="index"><span itemprop="name">DevOps</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2025/09/23/20250923/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2025/09/23/20250923/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>4.1k</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>10 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>最近在實作 GitLab CI，有個專案是 C# .NET Framework，現有的 Linux Runner 使用 docker executor 不太適用於 Windows 專案的建置。</p>
+<p>查了一下發現 Windows 主機上也可以部署 GitLab Runner，記錄一下安裝過程和遇到的問題。</p>
+<span id="more"></span>
+
+<h2 id="安裝步驟"><a href="#安裝步驟" class="headerlink" title="安裝步驟"></a>安裝步驟</h2><p>架設起來蠻順利的，跟著<a target="_blank" rel="noopener" href="https://docs.gitlab.com/runner/install/windows/">官方文件</a>就可以完成。</p>
+<h3 id="1-下載與註冊"><a href="#1-下載與註冊" class="headerlink" title="1. 下載與註冊"></a>1. 下載與註冊</h3><figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 到官方文件中提供的載點下載，或直接下面指令下載</span></span><br><span class="line"><span class="built_in">Invoke-WebRequest</span> <span class="literal">-Uri</span> <span class="string">&quot;https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-windows-amd64.exe&quot;</span> <span class="literal">-OutFile</span> <span class="string">&quot;gitlab-runner.exe&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 註冊</span></span><br><span class="line">gitlab<span class="literal">-runner</span>.exe register</span><br><span class="line"><span class="comment"># 安裝</span></span><br><span class="line">gitlab<span class="literal">-runner</span>.exe install</span><br><span class="line">gitlab<span class="literal">-runner</span>.exe <span class="built_in">start</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重啟服務（修改 config.toml 後）</span></span><br><span class="line">gitlab<span class="literal">-runner</span>.exe restart</span><br><span class="line"></span><br><span class="line"><span class="comment"># 驗證配置</span></span><br><span class="line">gitlab<span class="literal">-runner</span>.exe verify</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看狀態</span></span><br><span class="line">gitlab<span class="literal">-runner</span>.exe status</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 Windows 事件日誌</span></span><br><span class="line"><span class="built_in">Get-WinEvent</span> <span class="literal">-ProviderName</span> gitlab<span class="literal">-runner</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-基本測試"><a href="#3-基本測試" class="headerlink" title="3. 基本測試"></a>3. 基本測試</h3><p>安裝完成後先用簡單的 CI 測試：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># .gitlab-ci.yml 範例</span></span><br><span class="line"><span class="attr">stages:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">test</span></span><br><span class="line"></span><br><span class="line"><span class="attr">windows_test:</span></span><br><span class="line">  <span class="attr">stage:</span> <span class="string">test</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">windows10</span></span><br><span class="line">  <span class="attr">script:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">echo</span> <span class="string">&quot;=== GitLab Runner Windows 測試 ===&quot;</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">Get-ComputerInfo</span> <span class="string">|</span> <span class="string">Select-Object</span> <span class="string">WindowsProductName,</span> <span class="string">TotalPhysicalMemory</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="踩坑問題與解決方案"><a href="#踩坑問題與解決方案" class="headerlink" title="踩坑問題與解決方案"></a>踩坑問題與解決方案</h2><h3 id="問題一：CI-執行時輸出出現亂碼"><a href="#問題一：CI-執行時輸出出現亂碼" class="headerlink" title="問題一：CI 執行時輸出出現亂碼"></a>問題一：CI 執行時輸出出現亂碼</h3><p><strong>錯誤輸出範例：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">MSBuild : �L�k���� &#x27;MSBuild&#x27; ���J�O�_�� Cmdlet�B���ơB���O�ɩΥi�����&#123;�����W�١C���ˬd�W�٫��r�O�_���T�A�p�G�]�t���|��</span><br><span class="line">�ܡA�нT�&#123;���|�O�_���T�A�M���A�դ@���C</span><br><span class="line">���� �u��:308 �r��:1</span><br></pre></td></tr></table></figure>
+
+<p><strong>解決方法：</strong><br>實測改地區設定，勾選 <strong>Beta: 使用 Unicode UTF-8</strong> 有解決亂碼問題。</p>
+<p><strong>注意：</strong> 勾選之後我發現其他軟體可能會有些問題，例如 Outlook 信件通知、三竹股市軟體中新聞會有亂碼。</p>
+<p><strong>參考資料：</strong> <a target="_blank" rel="noopener" href="https://www.cnblogs.com/amisoft/p/18133551/gitlab-runner-output-bad-code-while-using-powershell">GitLab Runner PowerShell 亂碼問題</a></p>
+<h3 id="問題二：找不到執行檔（MSBuild-案例）"><a href="#問題二：找不到執行檔（MSBuild-案例）" class="headerlink" title="問題二：找不到執行檔（MSBuild 案例）"></a>問題二：找不到執行檔（MSBuild 案例）</h3><p>對於 .NET Framework 的建置，需要正確設定 MSBuild 路徑。這裡遇到的是：平常在本機可以使用的指令（如 <code>MSBuild</code>），在 GitLab Runner 中找不到。</p>
+<p><strong>錯誤輸出範例：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">MSBuild : The term &#x27;MSBuild&#x27; is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.</span><br><span class="line">At line:311 char:1</span><br><span class="line">+ MSBuild -version</span><br><span class="line">+ ~~~~~~~</span><br><span class="line">    + CategoryInfo          : ObjectNotFound: (MSBuild:String) [], CommandNotFoundException</span><br><span class="line">    + FullyQualifiedErrorId : CommandNotFoundException</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>原因解析：</strong><br>Windows 環境變數有三個層級：</p>
+<ul>
+<li><strong>Machine</strong>：系統層級，對所有使用者和服務有效</li>
+<li><strong>User</strong>：使用者層級，只對目前登入的使用者有效</li>
+<li><strong>Process</strong>：程序層級，只對目前的程式有效</li>
+</ul>
+<p>GitLab Runner 以 Windows 服務運行，只能存取 <strong>Machine 層級</strong> 的環境變數。</p>
+<p><strong>檢查方法：</strong><br>可以先在本機用下面指令查看 GitLab Runner 實際能存取的 PATH：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 系統層級的 PATH（GitLab Runner 看得到的）</span></span><br><span class="line">[<span class="type">System.Environment</span>]::GetEnvironmentVariable(<span class="string">&quot;PATH&quot;</span>,<span class="string">&quot;Machine&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用者層級的 PATH</span></span><br><span class="line">[<span class="type">System.Environment</span>]::GetEnvironmentVariable(<span class="string">&quot;PATH&quot;</span>,<span class="string">&quot;User&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 目前有效的完整 PATH（Machine + User）</span></span><br><span class="line"><span class="variable">$env:PATH</span></span><br></pre></td></tr></table></figure>
+
+<p>通常會發現 MSBuild 等開發工具只加在使用者層級的 PATH，所以 GitLab Runner 找不到。</p>
+<p><strong>解決方案：</strong></p>
+<h4 id="方案一：CI-檔案中寫完整路徑"><a href="#方案一：CI-檔案中寫完整路徑" class="headerlink" title="方案一：CI 檔案中寫完整路徑"></a>方案一：CI 檔案中寫完整路徑</h4><p>直接在 <code>.gitlab-ci.yml</code> 中指定完整路徑：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">stages:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">build</span></span><br><span class="line"></span><br><span class="line"><span class="attr">windows_build_test:</span></span><br><span class="line">  <span class="attr">stage:</span> <span class="string">build</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">windows10</span></span><br><span class="line">  <span class="attr">script:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">echo</span> <span class="string">&quot;=== .NET Framework Build Started ===&quot;</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">&#x27;&amp; &quot;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe&quot; -version&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="方案二：參數化變數設置"><a href="#方案二：參數化變數設置" class="headerlink" title="方案二：參數化變數設置"></a>方案二：參數化變數設置</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">stages:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">build</span></span><br><span class="line"></span><br><span class="line"><span class="attr">variables:</span></span><br><span class="line">  <span class="attr">MSBUILD_PATH:</span> <span class="string">&quot;C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">windows_build_test:</span></span><br><span class="line">  <span class="attr">stage:</span> <span class="string">build</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">windows10</span></span><br><span class="line">  <span class="attr">script:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">echo</span> <span class="string">&quot;=== .NET Framework Build Started ===&quot;</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">&#x27;&amp; &quot;$env:MSBUILD_PATH&quot; MSBuild -version&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="方案三：environment-設定"><a href="#方案三：environment-設定" class="headerlink" title="方案三：environment 設定"></a>方案三：environment 設定</h3><p>在 <code>config.toml</code> 中設定環境變數，但要注意原本的 PATH 會被完全覆蓋：</p>
+<figure class="highlight toml"><table><tr><td class="code"><pre><span class="line"><span class="section">[[runners]]</span></span><br><span class="line">  <span class="attr">executor</span> = <span class="string">&quot;shell&quot;</span></span><br><span class="line">  <span class="attr">shell</span> = <span class="string">&quot;powershell&quot;</span></span><br><span class="line">  <span class="attr">environment</span> = [</span><br><span class="line">    <span class="string">&quot;PATH=C:\\Program Files\\Git\\cmd;C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin&quot;</span></span><br><span class="line">  ]</span><br></pre></td></tr></table></figure>
+
+<h3 id="方案四：pre-build-script（推薦）"><a href="#方案四：pre-build-script（推薦）" class="headerlink" title="方案四：pre_build_script（推薦）"></a>方案四：pre_build_script（推薦）</h3><p>這種方式的好處是保留原有的系統 PATH，只是將需要的路徑優先加入。<br>在 <code>config.toml</code> 用 <code>pre_build_script</code> 來追加路徑，而不是覆蓋 PATH：</p>
+<figure class="highlight toml"><table><tr><td class="code"><pre><span class="line"><span class="section">[[runners]]</span></span><br><span class="line">  <span class="attr">executor</span> = <span class="string">&quot;shell&quot;</span></span><br><span class="line">  <span class="attr">shell</span> = <span class="string">&quot;powershell&quot;</span></span><br><span class="line">  <span class="attr">pre_build_script</span> = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">  $env:PATH = &quot;C:\\Program Files\\Git\\cmd;C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin;&quot; + $env:PATH</span></span><br><span class="line"><span class="string">  &quot;&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="下一階段：嘗試-CD-部署方案"><a href="#下一階段：嘗試-CD-部署方案" class="headerlink" title="下一階段：嘗試 CD 部署方案"></a>下一階段：嘗試 CD 部署方案</h3><p>目前 CI 建置已經搞定，接下來要試著處理 CD 的部分。</p>
+<p>之前在 Linux 環境處理 .NET Core 或 Python 專案時，都能用 SSH + Docker 搞定。但 .NET Framework 的部署情境會比較複雜一些。</p>
+<p>經過查資料，目前朝向這幾個作法去嘗試：</p>
+<p><strong>環境配置：</strong></p>
+<ul>
+<li>A：Linux GitLab（主控端）</li>
+<li>B：Windows Runner（建置機）</li>
+<li>C：Windows Server（目標部署機）</li>
+</ul>
+<p><strong>可能的部署方案：</strong></p>
+<ol>
+<li><strong>B 編譯 → 複製到 C</strong>：在 B 機建置完成後，用 robocopy 或 WebDeploy 推送到 C 機</li>
+<li><strong>C 自己拉程式 → C 上建置</strong>：C 機裝 GitLab Runner，直接 git clone 最新程式後在本機建置</li>
+<li><strong>B 編譯 → SSH 到 C 執行部署</strong>：B 機建置完成，透過 SSH 連到 C 機執行部署腳本</li>
+</ol>
+<p>不確定實務都用哪種做法，所以應該都會試試看。</p>
+<hr>
+<p><strong>參考連結：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.gitlab.com/runner/install/windows/">GitLab Runner Windows 安裝文件</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/amisoft/p/18133551/gitlab-runner-output-bad-code-while-using-powershell">PowerShell 亂碼問題解決</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/amisoft/p/18133615/use-msbuild-in-gitlab-runner-at-windows-11">MSBuild 在 GitLab Runner 中的使用</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/46242623/modify-path-for-gitlab-runner">GitLab Runner PATH 設定參考</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/GitLab-CI-CD-Windows-Runner/" rel="tag"># GitLab,CI/CD,Windows,Runner</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/08/28/20250821/" rel="prev" title="Python 套件管理工具 uv 與 Authlib 套件使用測試">
+                  <i class="fa fa-angle-left"></i> Python 套件管理工具 uv 與 Authlib 套件使用測試
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
