@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="nl_wmR_0k14r3e054p2rbknAvVR-s5mFGhnBdS6cGLc" />
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="近期在 VS Code 開發上使用了 MCP，自己安裝了以下幾個常用的套件：Oracle、PostgreSQL、Context7、Playwright、Chrome-DevTools 等。 這次要記錄的是 Playwright MCP 的使用。這個工具讓網頁自動化變得簡單，不用寫程式碼，只要用描述需求，就能讓 AI Agent 操作瀏覽器，完成需求。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Playwright MCP 使用紀錄">
+<meta property="og:url" content="https://blog.haogooday.fun/2025/10/27/20251027/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="近期在 VS Code 開發上使用了 MCP，自己安裝了以下幾個常用的套件：Oracle、PostgreSQL、Context7、Playwright、Chrome-DevTools 等。 這次要記錄的是 Playwright MCP 的使用。這個工具讓網頁自動化變得簡單，不用寫程式碼，只要用描述需求，就能讓 AI Agent 操作瀏覽器，完成需求。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/10/27/20251027/basic-usage.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/10/27/20251027/stock-query-demo.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/10/27/20251027/permission-dialog.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/10/27/20251027/query-success.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/10/27/20251027/etf-analysis-demo.png">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/10/27/20251027/etf-analysis-result.png">
+<meta property="article:published_time" content="2025-10-27T02:50:17.000Z">
+<meta property="article:modified_time" content="2025-10-27T02:50:17.000Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="自動化">
+<meta property="article:tag" content="Playwright MCP">
+<meta property="article:tag" content="MCP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.haogooday.fun/2025/10/27/20251027/basic-usage.png">
+
+
+<link rel="canonical" href="https://blog.haogooday.fun/2025/10/27/20251027/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2025/10/27/20251027/","path":"2025/10/27/20251027/","title":"Playwright MCP 使用紀錄"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Playwright MCP 使用紀錄 | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Playwright-%E7%B0%A1%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">Playwright 簡介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Playwright-MCP"><span class="nav-number">2.</span> <span class="nav-text">Playwright MCP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Playwright-MCP-%E5%AE%89%E8%A3%9D"><span class="nav-number">3.</span> <span class="nav-text">Playwright MCP 安裝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">基本使用方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%A6%E9%9A%9B%E6%87%89%E7%94%A8%E6%A1%88%E4%BE%8B"><span class="nav-number">5.</span> <span class="nav-text">實際應用案例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%82%A1%E5%83%B9%E6%9F%A5%E8%A9%A2%E5%AF%A6%E4%BE%8B"><span class="nav-number">5.1.</span> <span class="nav-text">股價查詢實例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ETF-%E6%8C%81%E8%82%A1%E5%88%86%E6%9E%90%E5%AF%A6%E4%BE%8B"><span class="nav-number">5.2.</span> <span class="nav-text">ETF 持股分析實例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%83%E5%BE%97"><span class="nav-number">6.</span> <span class="nav-text">心得</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2025/10/27/20251027/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Playwright MCP 使用紀錄 | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Playwright MCP 使用紀錄
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2025-10-27 10:50:17" itemprop="dateCreated datePublished" datetime="2025-10-27T10:50:17+08:00">2025-10-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/%E9%96%8B%E7%99%BC%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">開發工具</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2025/10/27/20251027/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2025/10/27/20251027/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>1.3k</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>3 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>近期在 VS Code 開發上使用了 MCP，自己安裝了以下幾個常用的套件：Oracle、PostgreSQL、Context7、Playwright、Chrome-DevTools 等。</p>
+<p>這次要記錄的是 <strong>Playwright MCP</strong> 的使用。這個工具讓網頁自動化變得簡單，不用寫程式碼，只要用描述需求，就能讓 AI Agent 操作瀏覽器，完成需求。</p>
+<span id="more"></span>
+
+<h2 id="Playwright-簡介"><a href="#Playwright-簡介" class="headerlink" title="Playwright 簡介"></a>Playwright 簡介</h2><p>Playwright 是由 Microsoft 開發的開源瀏覽器自動化工具，常用於網頁測試與爬蟲開發。傳統的 Playwright 需要透過<strong>程式碼執行</strong>各種操作，例如：</p>
+<ul>
+<li>程式化控制瀏覽器操作</li>
+<li>自動化點擊、輸入等互動</li>
+<li>內容驗證與測試</li>
+<li>網頁爬蟲</li>
+</ul>
+<h2 id="Playwright-MCP"><a href="#Playwright-MCP" class="headerlink" title="Playwright MCP"></a>Playwright MCP</h2><p>Playwright MCP，是基於 Playwright 技術延伸到 AI Agent 自動化應用場景的新版本。最大不同在於不再需要撰寫程式碼，而是透過 AI 模型對話，由 AI Agent 代為操作瀏覽器完成任務。</p>
+<h2 id="Playwright-MCP-安裝"><a href="#Playwright-MCP-安裝" class="headerlink" title="Playwright MCP 安裝"></a>Playwright MCP 安裝</h2><p>前往 <a target="_blank" rel="noopener" href="https://github.com/microsoft/playwright-mcp">Playwright MCP GitHub </a> 查看詳細的安裝文件，並根據使用的用戶端選擇對應的配置方式。</p>
+<p>如果對 MCP 配置不太熟悉，可直接請 AI 協助配置，例如在 VS Code 中使用 Cline 或 GitHub Copilot 來引導安裝流程。</p>
+<h2 id="基本使用方法"><a href="#基本使用方法" class="headerlink" title="基本使用方法"></a>基本使用方法</h2><p>最快熟悉 MCP Playwright 的方法是直接在 VS Code 中透過 GitHub Copilot 進行實際操作示範。</p>
+<img src="basic-usage.png" alt="GitHub Copilot 示範 MCP Playwright 基本操作" style="display: inline; border: 1px solid black;">
+
+<h2 id="實際應用案例"><a href="#實際應用案例" class="headerlink" title="實際應用案例"></a>實際應用案例</h2><h3 id="股價查詢實例"><a href="#股價查詢實例" class="headerlink" title="股價查詢實例"></a>股價查詢實例</h3><p>使用 MCP Playwright 前往 <a target="_blank" rel="noopener" href="https://goodinfo.tw/tw/index.asp">台灣股市資訊網</a> 查詢台積電最新股價的操作流程：</p>
+<img src="stock-query-demo.png" alt="使用 MCP Playwright 查詢台積電股價" style="display: inline; border: 1px solid black;">
+
+
+<p>在執行過程中，模型會針對每個網頁操作步驟詢問是否同意執行，可逐步確認或直接授權全部同意。</p>
+<img src="permission-dialog.png" alt="操作權限確認對話框" style="display: inline; border: 1px solid black;">
+
+<p>成功完成股價查詢：</p>
+<img src="query-success.png" alt="成功取得台積電股價資訊" style="display: inline; border: 1px solid black;">
+
+
+
+<h3 id="ETF-持股分析實例"><a href="#ETF-持股分析實例" class="headerlink" title="ETF 持股分析實例"></a>ETF 持股分析實例</h3><p>以 0050 ETF 為例，用 MCP Playwright 分析 <a target="_blank" rel="noopener" href="https://www.yuantaetfs.com/product/detail/0050/ratio">元大 0050 持股頁面</a>：</p>
+<p><strong>我的需求</strong>：</p>
+<blockquote>
+<p>“使用 MCP Playwright 到 <a target="_blank" rel="noopener" href="https://www.yuantaetfs.com/product/detail/0050/ratio">https://www.yuantaetfs.com/product/detail/0050/ratio</a></p>
+<p>幫我分析下該頁面，我要怎麼使用 python 抓取持股清單，或有更合適的實作方式？”</p>
+</blockquote>
+<img src="etf-analysis-demo.png" alt="MCP Playwright 分析元大 0050 持股頁面" style="display: inline; border: 1px solid black;">
+
+<p>MCP Playwright 會分析網頁結構並提供建議。這次執行中，它生成了 <code>.md</code> 格式的分析報告，包含實作建議。</p>
+<img src="etf-analysis-result.png" alt="AI 自動生成的技術分析報告" style="display: inline; border: 1px solid black;">
+
+
+
+<h2 id="心得"><a href="#心得" class="headerlink" title="心得"></a>心得</h2><p>MCP Playwright 讓網頁自動化變得簡單，不用寫程式碼，用文字描述需求就能操作瀏覽器，還會分析網頁結構提供技術建議。剛開始使用時比較謹慎，會逐步確認每個操作步驟，不敢一次讓它執行太多動作。</p>
+<p>相比之前玩過的 Browser Use，MCP Playwright 的優勢是真正做到了零程式碼操作。Browser Use 雖也很強大，但還是要寫一些基本程式，而不是像 MCP 這樣直接在介面輸入需求就能執行。</p>
+<p>整體使用下來，唯一比較明顯的缺點是執行速度稍慢，且需要使用較高階的 AI 模型，不過相信這些限制在未來都能逐步改善。想像如果未來我要爬取某個網頁資料，只要輸入簡單的敘述就能完成，而不用針對網站專門寫爬蟲。尤其是網頁結構經常改變導致爬蟲失效的問題，在這種技術下應該會變得更簡單吧！</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%87%AA%E5%8B%95%E5%8C%96/" rel="tag"># 自動化</a>
+              <a href="/tags/Playwright-MCP/" rel="tag"># Playwright MCP</a>
+              <a href="/tags/MCP/" rel="tag"># MCP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/09/23/20250923/" rel="prev" title="Windows 部署 GitLab Runner">
+                  <i class="fa fa-angle-left"></i> Windows 部署 GitLab Runner
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
