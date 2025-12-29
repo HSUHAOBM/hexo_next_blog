@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="nl_wmR_0k14r3e054p2rbknAvVR-s5mFGhnBdS6cGLc" />
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="最近系統出現「集區連線要求逾時」錯誤，無法正常連接 Oracle 資料庫。經過測試與調整連接池參數後解決問題。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle 連線字串與連接池設定優化">
+<meta property="og:url" content="https://blog.haogooday.fun/2025/12/29/20251229/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="最近系統出現「集區連線要求逾時」錯誤，無法正常連接 Oracle 資料庫。經過測試與調整連接池參數後解決問題。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://blog.haogooday.fun/2025/12/29/20251229/oracle-connection-pool-timeout-error.png">
+<meta property="article:published_time" content="2025-12-29T05:50:41.000Z">
+<meta property="article:modified_time" content="2025-12-29T05:50:41.000Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="Oracle">
+<meta property="article:tag" content="Connection Pool">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.haogooday.fun/2025/12/29/20251229/oracle-connection-pool-timeout-error.png">
+
+
+<link rel="canonical" href="https://blog.haogooday.fun/2025/12/29/20251229/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2025/12/29/20251229/","path":"2025/12/29/20251229/","title":"Oracle 連線字串與連接池設定優化"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Oracle 連線字串與連接池設定優化 | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%95%8F%E9%A1%8C%E7%99%BC%E7%8F%BE"><span class="nav-number">1.</span> <span class="nav-text">問題發現</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E8%83%BD%E5%8E%9F%E5%9B%A0%E6%8E%A8%E6%B8%AC"><span class="nav-number">2.</span> <span class="nav-text">可能原因推測</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%A3%E7%B7%9A%E5%AD%97%E4%B8%B2%E8%A8%AD%E5%AE%9A%E5%B0%8D%E6%AF%94"><span class="nav-number">3.</span> <span class="nav-text">連線字串設定對比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E5%A7%8B%E9%80%A3%E7%B7%9A%E5%AD%97%E4%B8%B2"><span class="nav-number">3.1.</span> <span class="nav-text">原始連線字串</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%84%AA%E5%8C%96%E5%BE%8C%E9%80%A3%E7%B7%9A%E5%AD%97%E4%B8%B2"><span class="nav-number">3.2.</span> <span class="nav-text">優化後連線字串</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%A3%E6%8E%A5%E6%B1%A0%E5%8F%83%E6%95%B8%E8%AA%AA%E6%98%8E"><span class="nav-number">4.</span> <span class="nav-text">連接池參數說明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%AC%E8%A9%A6"><span class="nav-number">5.</span> <span class="nav-text">測試</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E6%B1%BA%E6%96%B9%E6%A1%88"><span class="nav-number">6.</span> <span class="nav-text">解決方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">7.</span> <span class="nav-text">小結</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2025/12/29/20251229/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Oracle 連線字串與連接池設定優化 | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Oracle 連線字串與連接池設定優化
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2025-12-29 13:50:41" itemprop="dateCreated datePublished" datetime="2025-12-29T13:50:41+08:00">2025-12-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/Database/Oracle/" itemprop="url" rel="index"><span itemprop="name">Oracle</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2025/12/29/20251229/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2025/12/29/20251229/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>1.6k</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>4 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>最近系統出現「集區連線要求逾時」錯誤，無法正常連接 Oracle 資料庫。經過測試與調整連接池參數後解決問題。</p>
+<span id="more"></span>
+
+<h2 id="問題發現"><a href="#問題發現" class="headerlink" title="問題發現"></a>問題發現</h2><p>系統運作時出現連線錯誤：</p>
+<img src="oracle-connection-pool-timeout-error.png" alt="Oracle 連接池逾時錯誤畫面" style="display: inline; border: 1px solid black;">
+
+<p><strong>錯誤訊息</strong>：<code>Oracle.DataAccess.Client.OracleException: 集區連線要求逾時</code></p>
+<h2 id="可能原因推測"><a href="#可能原因推測" class="headerlink" title="可能原因推測"></a>可能原因推測</h2><ol>
+<li>連線數超過預設上限</li>
+<li>Session 累積過多</li>
+<li>連線逾時設定太短</li>
+<li>連線未正確釋放</li>
+</ol>
+<h2 id="連線字串設定對比"><a href="#連線字串設定對比" class="headerlink" title="連線字串設定對比"></a>連線字串設定對比</h2><h3 id="原始連線字串"><a href="#原始連線字串" class="headerlink" title="原始連線字串"></a>原始連線字串</h3><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">add</span> <span class="attr">name</span>=<span class="string">&quot;MyDB&quot;</span></span></span><br><span class="line"><span class="tag">     <span class="attr">connectionString</span>=<span class="string">&quot;USER ID=myuser;PASSWORD=****;DATA SOURCE=MYDB_SERVER&quot;</span></span></span><br><span class="line"><span class="tag">     <span class="attr">providerName</span>=<span class="string">&quot;Oracle.DataAccess.Client&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>說明</strong>：</p>
+<ul>
+<li>Oracle ODP.NET <strong>預設就會啟用連接池</strong>，即使沒有明確寫出參數</li>
+<li><code>providerName=&quot;Oracle.DataAccess.Client&quot;</code> 是 Oracle 官方 .NET 資料存取元件（ODP.NET）</li>
+</ul>
+<h3 id="優化後連線字串"><a href="#優化後連線字串" class="headerlink" title="優化後連線字串"></a>優化後連線字串</h3><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">add</span> <span class="attr">name</span>=<span class="string">&quot;MyDB&quot;</span></span></span><br><span class="line"><span class="tag">     <span class="attr">connectionString</span>=<span class="string">&quot;USER ID=myuser;PASSWORD=****;DATA SOURCE=MYDB_SERVER;Pooling=true;Min Pool Size=1;Max Pool Size=150;Connection Lifetime=300;Connection Timeout=30;&quot;</span></span></span><br><span class="line"><span class="tag">     <span class="attr">providerName</span>=<span class="string">&quot;Oracle.DataAccess.Client&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="連接池參數說明"><a href="#連接池參數說明" class="headerlink" title="連接池參數說明"></a>連接池參數說明</h2><blockquote>
+<p>參考文件：<a target="_blank" rel="noopener" href="https://docs.oracle.com/en/database/oracle/oracle-database/19/odpnt/featConnecting.html#GUID-8C3DBD43-95B4-4B09-A1F1-9D80AD93C93B">Oracle Data Provider for .NET - Connection Pooling</a></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>參數</th>
+<th>預設值</th>
+<th>自訂值</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Pooling</strong></td>
+<td>true</td>
+<td>true</td>
+<td>啟用連接池（重用連線，避免每次重新建立）</td>
+</tr>
+<tr>
+<td><strong>Min Pool Size</strong></td>
+<td>1</td>
+<td>1</td>
+<td>連接池最少保留幾條連線</td>
+</tr>
+<tr>
+<td><strong>Max Pool Size</strong></td>
+<td><strong>100</strong></td>
+<td><strong>150</strong></td>
+<td>連接池最多允許幾條連線</td>
+</tr>
+<tr>
+<td><strong>Connection Lifetime</strong></td>
+<td>0</td>
+<td><strong>300</strong></td>
+<td>連線存活時間（秒），0&#x3D;永不過期</td>
+</tr>
+<tr>
+<td><strong>Connection Timeout</strong></td>
+<td>15</td>
+<td><strong>30</strong></td>
+<td>建立連線最多等待時間（秒）</td>
+</tr>
+<tr>
+<td><strong>Incr Pool Size</strong></td>
+<td>5</td>
+<td>5</td>
+<td>每次擴展增加幾條連線</td>
+</tr>
+<tr>
+<td><strong>Decr Pool Size</strong></td>
+<td>1</td>
+<td>1</td>
+<td>每次縮減減少幾條連線</td>
+</tr>
+</tbody></table>
+<p><strong>連接池運作流程</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">請求來了 → 從池中取得連線 → 使用完畢放回池中 → 下次請求重用</span><br><span class="line">         ↓（池中沒有可用連線）</span><br><span class="line">      新建連線（不超過 Max Pool Size）</span><br><span class="line">         ↓（已達上限）</span><br><span class="line">      等待其他連線釋放（最多等 Connection Timeout 秒）</span><br><span class="line">         ↓（連線使用超過 Connection Lifetime）</span><br><span class="line">      銷毀舊連線，重新建立</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="測試"><a href="#測試" class="headerlink" title="測試"></a>測試</h2><p>為確認連接池功能是否真的存在，以及參數設定是否會生效，將 <code>Max Pool Size</code> 改 1：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">Max Pool Size=1</span><br></pre></td></tr></table></figure>
+
+<p><strong>結果</strong>：系統立即掛掉，出現一樣的區連線要求逾時</p>
+<p><strong>結論</strong>：證明連接池確實存在、參數設定有效</p>
+<h2 id="解決方案"><a href="#解決方案" class="headerlink" title="解決方案"></a>解決方案</h2><p><strong>改善重點</strong>：</p>
+<ul>
+<li><code>Max Pool Size=150</code> 增加連線數上限</li>
+<li><code>Connection Lifetime=300</code> 每 5 分鐘重建連線，防止 session 累積</li>
+<li><code>Connection Timeout=30</code> 增加等待時間，降低逾時風險</li>
+</ul>
+<p>修改 Web.config 連線字串 → 重啟 IIS → 系統高峰不再出現區連線要求逾時</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><ul>
+<li>在不更動程式碼，調整連線字串參數也能初步改善連線問題</li>
+<li>Oracle ODP.NET 預設就會啟用連接池，但建議明確設定參數避免依賴預設值</li>
+<li>透過測試驗證問題點，再調整對應參數</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Oracle/" rel="tag"># Oracle</a>
+              <a href="/tags/Connection-Pool/" rel="tag"># Connection Pool</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/11/24/20251124/" rel="prev" title="處理 ASP.NET Web Site 專案程式碼風格檢測">
+                  <i class="fa fa-angle-left"></i> 處理 ASP.NET Web Site 專案程式碼風格檢測
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
