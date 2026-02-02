@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="nl_wmR_0k14r3e054p2rbknAvVR-s5mFGhnBdS6cGLc" />
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="記錄 Cronicle 排程系統的緊急搬移過程。A 地的 Linux VM 發生硬碟故障，檔案系統變成唯讀狀態無法寫入。趁著還能讀取資料，透過 scp 把 Cronicle 的 data 和 conf 拉到 B 地，用 Docker 重新建起來。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cronicle 備份搬移：從故障主機還原排程系統">
+<meta property="og:url" content="https://blog.haogooday.fun/2026/01/31/20260131/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="記錄 Cronicle 排程系統的緊急搬移過程。A 地的 Linux VM 發生硬碟故障，檔案系統變成唯讀狀態無法寫入。趁著還能讀取資料，透過 scp 把 Cronicle 的 data 和 conf 拉到 B 地，用 Docker 重新建起來。">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2026-01-31T11:37:16.000Z">
+<meta property="article:modified_time" content="2026-01-31T11:37:16.000Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="DevOps">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.haogooday.fun/2026/01/31/20260131/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2026/01/31/20260131/","path":"2026/01/31/20260131/","title":"Cronicle 備份搬移：從故障主機還原排程系統"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Cronicle 備份搬移：從故障主機還原排程系統 | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%B5%B1%E6%97%A5%E8%AA%8C"><span class="nav-number">1.1.</span> <span class="nav-text">系統日誌</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%95%E7%90%86%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">處理流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%82%84%E5%8E%9F%E9%81%8E%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">還原過程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%9E-A-%E5%9C%B0-scp-%E6%8B%89%E8%B3%87%E6%96%99"><span class="nav-number">2.1.</span> <span class="nav-text">從 A 地 scp 拉資料</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A3%93%E7%B8%AE%E5%82%99%E4%BB%BD%E7%95%99%E5%AD%98"><span class="nav-number">2.2.</span> <span class="nav-text">壓縮備份留存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%A3%93%E7%B8%AE%E5%82%99%E4%BB%BD%E6%AA%94%E5%88%B0%E6%9A%AB%E5%AD%98"><span class="nav-number">2.3.</span> <span class="nav-text">解壓縮備份檔到暫存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-rsync-%E9%82%84%E5%8E%9F%EF%BC%88%E6%8E%92%E7%A8%8B-event-job%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">使用 rsync 還原（排程 &#x2F; event &#x2F; job）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%82%84%E5%8E%9F-data"><span class="nav-number">2.4.1.</span> <span class="nav-text">還原 data</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%82%84%E5%8E%9F-conf"><span class="nav-number">2.4.2.</span> <span class="nav-text">還原 conf</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A2%BA%E8%AA%8D-docker-compose-yml"><span class="nav-number">2.5.</span> <span class="nav-text">確認 docker-compose.yml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%95%9F%E5%8B%95-Cronicle"><span class="nav-number">2.6.</span> <span class="nav-text">啟動 Cronicle</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%95%9F%E5%8B%95%E5%BE%8C%E6%AA%A2%E6%9F%A5"><span class="nav-number">3.</span> <span class="nav-text">啟動後檢查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B5%90%E8%AB%96"><span class="nav-number">4.</span> <span class="nav-text">結論</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">參考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2026/01/31/20260131/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Cronicle 備份搬移：從故障主機還原排程系統 | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Cronicle 備份搬移：從故障主機還原排程系統
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2026-01-31 19:37:16" itemprop="dateCreated datePublished" datetime="2026-01-31T19:37:16+08:00">2026-01-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/DevOps/" itemprop="url" rel="index"><span itemprop="name">DevOps</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2026/01/31/20260131/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2026/01/31/20260131/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>2.8k</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>7 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>記錄 Cronicle 排程系統的緊急搬移過程。A 地的 Linux VM 發生硬碟故障，檔案系統變成唯讀狀態無法寫入。趁著還能讀取資料，透過 <code>scp</code> 把 Cronicle 的 data 和 conf 拉到 B 地，用 Docker 重新建起來。</p>
+<span id="more"></span>
+
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>A 地 Cronicle Server 因硬碟 I&#x2F;O error 被系統強制 remount 成唯讀，導致 Cronicle 無法寫入 log 而啟動失敗。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">root@eu-cronicle:/opt/cronicle<span class="comment"># /opt/cronicle/bin/control.sh start</span></span><br><span class="line">/opt/cronicle/bin/control.sh start: Starting up Cronicle Daemon...</span><br><span class="line">&#123; Error: EROFS: read-only file system, open <span class="string">&#x27;logs/Cronicle.log&#x27;</span></span><br><span class="line">    at Object.openSync (fs.js:443:3)</span><br><span class="line">    ...</span><br><span class="line">  errno: -30,</span><br><span class="line">  syscall: <span class="string">&#x27;open&#x27;</span>,</span><br><span class="line">  code: <span class="string">&#x27;EROFS&#x27;</span>,</span><br><span class="line">  path: <span class="string">&#x27;logs/Cronicle.log&#x27;</span> &#125;</span><br><span class="line">/opt/cronicle/bin/control.sh start: Cronicle Daemon could not be started</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="系統日誌"><a href="#系統日誌" class="headerlink" title="系統日誌"></a>系統日誌</h3><p>使用 <code>dmesg</code> 查看核心訊息，確認硬碟發生 I&#x2F;O 錯誤：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dmesg -T | grep -i -E <span class="string">&quot;ext4|error|read-only|i/o&quot;</span> | <span class="built_in">tail</span> -n 20</span><br></pre></td></tr></table></figure>
+
+<p>輸出：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[六  1月 31 10:01:19 2026] print_req_error: I/O error, dev sda, sector 130287616</span><br><span class="line">[六  1月 31 10:01:19 2026] EXT4-fs warning (device sda1): ext4_end_bio:323: I/O error 10 writing to inode 2624680</span><br><span class="line">[六  1月 31 10:01:19 2026] JBD2: Error -5 detected when updating journal superblock for sda1-8.</span><br><span class="line">[六  1月 31 10:01:19 2026] EXT4-fs (sda1): I/O error while writing superblock</span><br><span class="line">[六  1月 31 10:01:19 2026] EXT4-fs error (device sda1): ext4_journal_check_start:61: Detected aborted journal</span><br><span class="line">[六  1月 31 10:01:19 2026] EXT4-fs (sda1): Remounting filesystem read-only</span><br></pre></td></tr></table></figure>
+
+<p>從日誌可以看到：</p>
+<ul>
+<li><strong>I&#x2F;O error</strong>：硬碟多個 sector 發生讀寫錯誤</li>
+<li><strong>JBD2 journal aborted</strong>：檔案系統日誌損壞</li>
+<li><strong>Remounting filesystem read-only</strong>：系統自動將檔案系統切換為唯讀模式保護資料</li>
+</ul>
+<h3 id="處理流程"><a href="#處理流程" class="headerlink" title="處理流程"></a>處理流程</h3><ol>
+<li><strong>搶救資料</strong>：趁還能讀取，<code>scp</code> 把 Cronicle 的 <code>data/</code> 和 <code>conf/</code> 備份拉到 B 地</li>
+<li><strong>B 地建立備援</strong>：用 Docker 在 B 地把 Cronicle 跑起來</li>
+<li>在 AI 的協助下，<strong>修復 A 地硬碟</strong>：執行 <code>fsck -y</code> 進行磁碟修復，再 <code>reboot</code> 恢復正常</li>
+</ol>
+<p>以下記錄<strong>步驟 2</strong>：在 B 地用 Docker 還原 Cronicle 的過程。</p>
+<h2 id="還原過程"><a href="#還原過程" class="headerlink" title="還原過程"></a>還原過程</h2><h3 id="從-A-地-scp-拉資料"><a href="#從-A-地-scp-拉資料" class="headerlink" title="從 A 地 scp 拉資料"></a>從 A 地 scp 拉資料</h3><p>趁 A 地還能讀取，把 Cronicle 的 <code>data/</code> 和 <code>conf/</code> 拉到 B 地：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /root/cronicle-backup</span><br><span class="line">scp -r root@A地IP:/opt/cronicle/data /root/cronicle-backup/</span><br><span class="line">scp -r root@A地IP:/opt/cronicle/conf /root/cronicle-backup/</span><br></pre></td></tr></table></figure>
+
+<h3 id="壓縮備份留存"><a href="#壓縮備份留存" class="headerlink" title="壓縮備份留存"></a>壓縮備份留存</h3><p>先打包備份，以防後續操作失敗還有救：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /root</span><br><span class="line">tar czf cronicle-backup-2026-01-31.tar.gz cronicle-backup/</span><br></pre></td></tr></table></figure>
+
+<h3 id="解壓縮備份檔到暫存"><a href="#解壓縮備份檔到暫存" class="headerlink" title="解壓縮備份檔到暫存"></a>解壓縮備份檔到暫存</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /tmp/cronicle-restore</span><br><span class="line">tar xzf /root/cronicle-backup-2026-01-31.tar.gz -C /tmp/cronicle-restore</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用-rsync-還原（排程-event-job）"><a href="#使用-rsync-還原（排程-event-job）" class="headerlink" title="使用 rsync 還原（排程 &#x2F; event &#x2F; job）"></a>使用 rsync 還原（排程 &#x2F; event &#x2F; job）</h3><blockquote>
+<p><strong>rsync？</strong><br>保留權限和屬性、斷點續傳、–delete 同步刪除：確保目的地與來源完全一致</p>
+</blockquote>
+<h4 id="還原-data"><a href="#還原-data" class="headerlink" title="還原 data"></a>還原 data</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /home/user/tools/docker-cronicle/data/data</span><br><span class="line"></span><br><span class="line">rsync -a --delete \</span><br><span class="line">  /tmp/cronicle-restore/cronicle-backup/data/ \</span><br><span class="line">  /home/user/tools/docker-cronicle/data/data/</span><br></pre></td></tr></table></figure>
+
+<h4 id="還原-conf"><a href="#還原-conf" class="headerlink" title="還原 conf"></a>還原 conf</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /home/user/tools/docker-cronicle/data/conf</span><br><span class="line"></span><br><span class="line">rsync -a --delete \</span><br><span class="line">  /tmp/cronicle-restore/cronicle-backup/conf/ \</span><br><span class="line">  /home/user/tools/docker-cronicle/data/conf/</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="確認-docker-compose-yml"><a href="#確認-docker-compose-yml" class="headerlink" title="確認 docker-compose.yml"></a>確認 docker-compose.yml</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cat</span> docker-compose.yml</span><br></pre></td></tr></table></figure>
+
+<p>確認 volumes 有正確掛載：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">volumes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">./data/conf:/opt/cronicle/conf</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">./data/data:/opt/cronicle/data</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="啟動-Cronicle"><a href="#啟動-Cronicle" class="headerlink" title="啟動 Cronicle"></a>啟動 Cronicle</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker compose up</span><br></pre></td></tr></table></figure>
+
+<h2 id="啟動後檢查"><a href="#啟動後檢查" class="headerlink" title="啟動後檢查"></a>啟動後檢查</h2><p>啟動後確認：</p>
+<ul>
+<li>Web UI 可正常存取：<code>http://&lt;host&gt;:3012</code></li>
+<li>A 地的排程（Schedules）是否存在</li>
+<li>Events 是否有歷史紀錄</li>
+</ul>
+<h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><p><strong>為什麼要備份到異地再修復？</strong><br><code>fsck</code> 修復有可能失敗，可能會有不可逆的狀況：</p>
+<ul>
+<li>修復過程中硬碟徹底損壞</li>
+<li>fsck 自動刪除無法修復的檔案</li>
+<li>底層儲存問題未解決，修復後又再次出錯</li>
+</ul>
+<p>因此先 scp 把資料拉到 B 地，確認服務能跑，再執行修復動作。即使 A 地整個掛掉，B 地還能撐住。</p>
+<h2 id="參考"><a href="#參考" class="headerlink" title="參考"></a>參考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/jhuckaby/Cronicle">Cronicle GitHub</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/soulteary/docker-cronicle">Docker Cronicle</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/DevOps/" rel="tag"># DevOps</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/12/29/20251229/" rel="prev" title="Oracle 連線字串與連接池設定優化">
+                  <i class="fa fa-angle-left"></i> Oracle 連線字串與連接池設定優化
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
