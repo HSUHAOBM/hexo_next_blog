@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="nl_wmR_0k14r3e054p2rbknAvVR-s5mFGhnBdS6cGLc" />
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="用 AWS Bedrock 的 Tool Use 功能，讓 AI 模型當「大腦」，自主判斷什麼時候需要什麼資料，主動呼叫本機工具取得即時資訊再回答。本篇以我自己寫的財經新聞 AI 對話系統為例，分享整個實作流程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWS Bedrock Tool Use：讓 AI 自己決定要呼叫什麼工具">
+<meta property="og:url" content="https://blog.haogooday.fun/2026/04/10/20260410/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="用 AWS Bedrock 的 Tool Use 功能，讓 AI 模型當「大腦」，自主判斷什麼時候需要什麼資料，主動呼叫本機工具取得即時資訊再回答。本篇以我自己寫的財經新聞 AI 對話系統為例，分享整個實作流程。">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2026-04-10T04:00:00.000Z">
+<meta property="article:modified_time" content="2026-04-10T04:00:00.000Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="AWS-Lambda">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.haogooday.fun/2026/04/10/20260410/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2026/04/10/20260410/","path":"2026/04/10/20260410/","title":"AWS Bedrock Tool Use：讓 AI 自己決定要呼叫什麼工具"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>AWS Bedrock Tool Use：讓 AI 自己決定要呼叫什麼工具 | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Bedrock-%E5%92%8C-Tool-Use-%E6%98%AF%E4%BB%80%E9%BA%BC"><span class="nav-number">1.</span> <span class="nav-text">Bedrock 和 Tool Use 是什麼</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E6%80%8E%E9%BA%BC%E5%AE%9A%E7%BE%A9"><span class="nav-number">2.</span> <span class="nav-text">工具怎麼定義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BE%8C%E7%AB%AF%E5%B0%8D%E8%A9%B1%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">後端對話流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%92%8C-MCP-%E7%9A%84%E5%B7%AE%E5%88%A5"><span class="nav-number">4.</span> <span class="nav-text">和 MCP 的差別</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">參考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">44</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2026/04/10/20260410/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="AWS Bedrock Tool Use：讓 AI 自己決定要呼叫什麼工具 | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AWS Bedrock Tool Use：讓 AI 自己決定要呼叫什麼工具
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2026-04-10 12:00:00" itemprop="dateCreated datePublished" datetime="2026-04-10T12:00:00+08:00">2026-04-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2026/04/10/20260410/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2026/04/10/20260410/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>2.9k</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>7 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>用 AWS Bedrock 的 Tool Use 功能，讓 AI 模型當「大腦」，自主判斷什麼時候需要什麼資料，主動呼叫本機工具取得即時資訊再回答。本篇以我自己寫的財經新聞 AI 對話系統為例，分享整個實作流程。</p>
+<span id="more"></span>
+
+<h2 id="Bedrock-和-Tool-Use-是什麼"><a href="#Bedrock-和-Tool-Use-是什麼" class="headerlink" title="Bedrock 和 Tool Use 是什麼"></a>Bedrock 和 Tool Use 是什麼</h2><p><a target="_blank" rel="noopener" href="https://aws.amazon.com/bedrock/">AWS Bedrock</a> 可以把 Claude、Llama、Nova 這類模型包在同一套 API 後面使用，不需要自己架 GPU，也不用自己維護模型服務。</p>
+<p>Tool Use 則是讓模型在回答前，可以先要求後端執行某個工具。模型不是真的自己連資料庫或打 API，而是回傳一個 <code>tool_use</code> 指令，後端收到後再去呼叫實際函式，最後把結果送回模型整理成回答。</p>
+<p>以新聞查詢這類情境來說，流程大概是：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">使用者提問</span><br><span class="line">  -&gt; Claude 判斷需要查資料</span><br><span class="line">  -&gt; 回傳 tool_use，例如 search_news(keyword=&quot;台積電&quot;)</span><br><span class="line">  -&gt; Flask 後端執行本機函式</span><br><span class="line">  -&gt; 把搜尋結果送回 Claude</span><br><span class="line">  -&gt; Claude 整理成最後回答</span><br></pre></td></tr></table></figure>
+
+<p>這樣做的好處是，AI 不用憑印象回答，可以先查我準備好的資料。</p>
+<h2 id="工具怎麼定義"><a href="#工具怎麼定義" class="headerlink" title="工具怎麼定義"></a>工具怎麼定義</h2><p>在 Bedrock 裡，工具要先用 JSON Schema 描述清楚。至少要包含工具名稱、用途，以及需要哪些參數。簡化後大概像這樣：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">tool_spec = &#123;</span><br><span class="line">    <span class="string">&quot;toolSpec&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;search_news&quot;</span>,</span><br><span class="line">        <span class="string">&quot;description&quot;</span>: <span class="string">&quot;搜尋本機新聞資料。&quot;</span>,</span><br><span class="line">        <span class="string">&quot;inputSchema&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;json&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;type&quot;</span>: <span class="string">&quot;object&quot;</span>,</span><br><span class="line">                <span class="string">&quot;properties&quot;</span>: &#123;</span><br><span class="line">                    <span class="string">&quot;keyword&quot;</span>: &#123;</span><br><span class="line">                        <span class="string">&quot;type&quot;</span>: <span class="string">&quot;string&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;description&quot;</span>: <span class="string">&quot;搜尋關鍵字&quot;</span>,</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;,</span><br><span class="line">                <span class="string">&quot;required&quot;</span>: [<span class="string">&quot;keyword&quot;</span>],</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>實際使用時，可以依需求放幾種工具，例如查新聞、查股價、查指數。這裡只抓概念，不需要把整個系統攤開；重點是：<strong>每個工具都只是後端的一個函式，AI 只負責選工具和填參數。</strong></p>
+<h2 id="後端對話流程"><a href="#後端對話流程" class="headerlink" title="後端對話流程"></a>後端對話流程</h2><p>後端呼叫 Bedrock 時，把工具清單一起帶進去：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">response = bedrock.converse(</span><br><span class="line">    modelId=model_id,</span><br><span class="line">    system=[&#123;<span class="string">&quot;text&quot;</span>: system_text&#125;],</span><br><span class="line">    messages=messages,</span><br><span class="line">    toolConfig=&#123;<span class="string">&quot;tools&quot;</span>: tools&#125;,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>接著看 Bedrock 回傳的 <code>stopReason</code>：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">stop_reason = response.get(<span class="string">&quot;stopReason&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> stop_reason == <span class="string">&quot;end_turn&quot;</span>:</span><br><span class="line">    <span class="comment"># 模型已經回答完成</span></span><br><span class="line">    reply = response[<span class="string">&quot;output&quot;</span>][<span class="string">&quot;message&quot;</span>][<span class="string">&quot;content&quot;</span>][<span class="number">0</span>][<span class="string">&quot;text&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">elif</span> stop_reason == <span class="string">&quot;tool_use&quot;</span>:</span><br><span class="line">    <span class="comment"># 模型要求呼叫工具</span></span><br><span class="line">    tool_use = response[<span class="string">&quot;output&quot;</span>][<span class="string">&quot;message&quot;</span>][<span class="string">&quot;content&quot;</span>][<span class="number">0</span>][<span class="string">&quot;toolUse&quot;</span>]</span><br><span class="line">    tool_name = tool_use[<span class="string">&quot;name&quot;</span>]</span><br><span class="line">    tool_input = tool_use[<span class="string">&quot;input&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>如果是 <code>tool_use</code>，後端就依照工具名稱分派到自己的函式：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> tool_name == <span class="string">&quot;search_news&quot;</span>:</span><br><span class="line">    result = search_news(tool_input[<span class="string">&quot;keyword&quot;</span>])</span><br><span class="line"><span class="keyword">elif</span> tool_name == <span class="string">&quot;get_stock_quote&quot;</span>:</span><br><span class="line">    result = get_stock_quote(tool_input[<span class="string">&quot;symbol&quot;</span>])</span><br></pre></td></tr></table></figure>
+
+<p>最後把結果包成 <code>toolResult</code>，再送回 Bedrock：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">messages.append(&#123;</span><br><span class="line">    <span class="string">&quot;role&quot;</span>: <span class="string">&quot;user&quot;</span>,</span><br><span class="line">    <span class="string">&quot;content&quot;</span>: [&#123;</span><br><span class="line">        <span class="string">&quot;toolResult&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;toolUseId&quot;</span>: tool_use[<span class="string">&quot;toolUseId&quot;</span>],</span><br><span class="line">            <span class="string">&quot;content&quot;</span>: [&#123;<span class="string">&quot;text&quot;</span>: json.dumps(result, ensure_ascii=<span class="literal">False</span>)&#125;],</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;],</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>這段通常會包在迴圈裡，因為模型可能查完新聞後，又想再查股價。實作時最好加上輪數上限，例如 <code>MAX_TOOL_ROUNDS = 6</code>，避免工具呼叫卡住一直跑。</p>
+<h2 id="和-MCP-的差別"><a href="#和-MCP-的差別" class="headerlink" title="和 MCP 的差別"></a>和 MCP 的差別</h2><p>Tool Use 比較像「後端自己內建幾個工具給模型用」。如果工具只服務單一系統，這樣就很夠了。</p>
+<p>MCP 則比較像把工具獨立成一個 server，讓不同 AI 客戶端都可以接進來用。它彈性比較高，但也多了啟動、部署、權限管理這些事情。</p>
+<p>我這次只是要讓自己的 Flask app 能查本機新聞和市場資料，所以先用 Bedrock Tool Use 就好。</p>
+<h2 id="參考"><a href="#參考" class="headerlink" title="參考"></a>參考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/bedrock/latest/userguide/tool-use.html">AWS Bedrock - Tool Use</a></li>
+<li><a target="_blank" rel="noopener" href="https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-runtime/client/converse.html">boto3 bedrock-runtime converse</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/MCP/" rel="tag"># MCP</a>
+              <a href="/tags/AWS-Lambda/" rel="tag"># AWS-Lambda</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/01/31/20260131/" rel="prev" title="Cronicle 備份搬移：從故障主機還原排程系統">
+                  <i class="fa fa-angle-left"></i> Cronicle 備份搬移：從故障主機還原排程系統
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
