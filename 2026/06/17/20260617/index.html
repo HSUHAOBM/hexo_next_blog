@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="google-site-verification" content="nl_wmR_0k14r3e054p2rbknAvVR-s5mFGhnBdS6cGLc" />
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.haogooday.fun","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="這次遇到 LINE Webhook Verify 失敗，後台只顯示 An SSL connection error occurred。 一開始線索指向 TLS Cipher Suite，抓封包後才收斂到憑證鏈相容性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LINE Webhook Verify 失敗：An SSL connection error occurred">
+<meta property="og:url" content="https://blog.haogooday.fun/2026/06/17/20260617/index.html">
+<meta property="og:site_name" content="HaoGooday">
+<meta property="og:description" content="這次遇到 LINE Webhook Verify 失敗，後台只顯示 An SSL connection error occurred。 一開始線索指向 TLS Cipher Suite，抓封包後才收斂到憑證鏈相容性。">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2026-06-17T06:10:01.000Z">
+<meta property="article:modified_time" content="2026-06-17T06:10:01.000Z">
+<meta property="article:author" content="Ian">
+<meta property="article:tag" content="LINE">
+<meta property="article:tag" content="Webhook">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.haogooday.fun/2026/06/17/20260617/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://blog.haogooday.fun/2026/06/17/20260617/","path":"2026/06/17/20260617/","title":"LINE Webhook Verify 失敗：An SSL connection error occurred"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>LINE Webhook Verify 失敗：An SSL connection error occurred | HaoGooday</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-T5GS3TCPB8"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-T5GS3TCPB8","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">HaoGooday</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首頁</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%95%8F%E9%A1%8C%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">問題背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9AIIS-Access-Log-%E6%B2%92%E6%9C%89-Request"><span class="nav-number">2.</span> <span class="nav-text">第一步：IIS Access Log 沒有 Request</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E7%95%B0%E5%9C%B0%E8%B5%B7%E6%9C%8D%E5%8B%99%EF%BC%8C%E7%A2%BA%E8%AA%8D-LINE-%E4%BE%86%E6%BA%90-IP"><span class="nav-number">3.</span> <span class="nav-text">第二步：異地起服務，確認 LINE 來源 IP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E6%AA%A2%E6%9F%A5-HTTPERR-Log"><span class="nav-number">4.</span> <span class="nav-text">第三步：檢查 HTTPERR Log</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9AWindows-Event-Viewer-%E7%9A%84-Schannel-%E9%8C%AF%E8%AA%A4"><span class="nav-number">5.</span> <span class="nav-text">第四步：Windows Event Viewer 的 Schannel 錯誤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%94%E6%AD%A5%EF%BC%9A%E7%94%A8-IIS-Crypto-%E6%AA%A2%E6%9F%A5%E5%AF%86%E7%A2%BC%E5%A5%97%E4%BB%B6"><span class="nav-number">6.</span> <span class="nav-text">第五步：用 IIS Crypto 檢查密碼套件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%8D%E5%A4%96%E8%B8%A9%E9%9B%B7%EF%BC%9AIIS-Crypto-%E4%BF%AE%E6%94%B9%E5%BE%8C%E5%B0%8E%E8%87%B4%E9%80%A3%E7%B7%9A%E7%95%B0%E5%B8%B8"><span class="nav-number">6.1.</span> <span class="nav-text">額外踩雷：IIS Crypto 修改後導致連線異常</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E5%85%AD%E6%AD%A5%EF%BC%9A%E6%8A%93%E5%B0%81%E5%8C%85%E7%A2%BA%E8%AA%8D-LINE-%E5%AF%A6%E9%9A%9B%E5%8D%A1%E5%9C%A8%E5%93%AA%E8%A3%A1"><span class="nav-number">7.</span> <span class="nav-text">第六步：抓封包確認 LINE 實際卡在哪裡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9C%9F%E6%AD%A3%E5%8F%AF%E7%96%91%E7%9A%84%E5%9C%B0%E6%96%B9%EF%BC%9A%E6%86%91%E8%AD%89%E9%8F%88"><span class="nav-number">8.</span> <span class="nav-text">真正可疑的地方：憑證鏈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A-B-%E6%B8%AC%E8%A9%A6%EF%BC%9A%E5%8F%AA%E6%8A%8A-API-%E5%AD%90%E7%B6%B2%E5%9F%9F%E6%8F%9B%E6%88%90-Let%E2%80%99s-Encrypt"><span class="nav-number">9.</span> <span class="nav-text">A&#x2F;B 測試：只把 API 子網域換成 Let’s Encrypt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B5%90%E8%AB%96"><span class="nav-number">10.</span> <span class="nav-text">結論</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ian</p>
+  <div class="site-description" itemprop="description">學習與工作記錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HSUHAOBM" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HSUHAOBM" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hao66bmbm@gmail.com" title="E-Mail → mailto:hao66bmbm@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://blog.haogooday.fun/2026/06/17/20260617/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ian">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HaoGooday">
+      <meta itemprop="description" content="學習與工作記錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="LINE Webhook Verify 失敗：An SSL connection error occurred | HaoGooday">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LINE Webhook Verify 失敗：An SSL connection error occurred
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2026-06-17 14:10:01" itemprop="dateCreated datePublished" datetime="2026-06-17T14:10:01+08:00">2026-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/" itemprop="url" rel="index"><span itemprop="name">Learn</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Learn/Web/" itemprop="url" rel="index"><span itemprop="name">Web</span></a>
+        </span>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus：</span>
+    
+    <a title="disqus" href="/2026/06/17/20260617/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2026/06/17/20260617/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="文章字數">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">文章字數：</span>
+      <span>4.1k</span>
+    </span>
+    <span class="post-meta-item" title="所需閱讀時間">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">所需閱讀時間 &asymp;</span>
+      <span>10 分鐘</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>這次遇到 LINE Webhook Verify 失敗，後台只顯示 <code>An SSL connection error occurred</code>。</p>
+<p>一開始線索指向 TLS Cipher Suite，抓封包後才收斂到憑證鏈相容性。</p>
+<span id="more"></span>
+
+<h2 id="問題背景"><a href="#問題背景" class="headerlink" title="問題背景"></a>問題背景</h2><p>在 LINE Developers 後台 <code>Webhook settings</code> 按下 <code>Verify</code>，跳出：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Error</span><br><span class="line">An SSL connection error occurred. For more information, see SSL/TLS specification of the webhook source in the Messaging</span><br><span class="line">API documentation.</span><br></pre></td></tr></table></figure>
+
+<p>這不是正式 webhook event 處理失敗，而是 LINE 後台的 Verify 連線測試失敗。</p>
+<p>環境如下：</p>
+<ul>
+<li>Server：Windows Server 2019 &#x2F; IIS</li>
+<li>Domain：內部 API 子網域</li>
+<li>原本使用的憑證：公司網域的 wildcard certificate</li>
+</ul>
+<p>一開始排查時，還不知道公司前陣子有更換 SSL 憑證。這是後來抓封包，看到 LINE 在收到 Server Certificate 後中止 TLS，才回頭確認出來的。</p>
+<h2 id="第一步：IIS-Access-Log-沒有-Request"><a href="#第一步：IIS-Access-Log-沒有-Request" class="headerlink" title="第一步：IIS Access Log 沒有 Request"></a>第一步：IIS Access Log 沒有 Request</h2><p>LINE Developers 後台按下 <code>Verify</code> 後，IIS W3SVC log 沒有那筆 request。</p>
+<p>request 沒進 IIS，先排除應用程式 routing、controller、HTTP status code 這類問題。</p>
+<p>另外，我也用自己外網的 Linode 直接打同一支 webhook，HTTP request 可以正常進來。</p>
+<p>這讓當時的判斷更偏向「LINE 到公司環境之間的連線問題」，而不是 webhook 程式或 URL 本身壞掉。</p>
+<h2 id="第二步：異地起服務，確認-LINE-來源-IP"><a href="#第二步：異地起服務，確認-LINE-來源-IP" class="headerlink" title="第二步：異地起服務，確認 LINE 來源 IP"></a>第二步：異地起服務，確認 LINE 來源 IP</h2><p>接著我在另一個外部環境另外架了一個測試 webhook endpoint，<br>先讓 LINE Verify 打到那邊，確認 LINE 實際連線來源 IP。</p>
+<p>請負責網路與防火牆的同事協助確認：</p>
+<ul>
+<li>LINE IP 有沒有被防火牆擋掉</li>
+<li>伺服器 443 是否有收到連線</li>
+<li>中間網路設備有沒有 drop 或 reset</li>
+</ul>
+<p>由於防火牆不是我管理，這段花很多時間在協調。每次只能先縮小可疑範圍，再請對應的人查。</p>
+<p>防火牆沒有明顯阻擋後，往 Windows Server 本機 log 查。</p>
+<h2 id="第三步：檢查-HTTPERR-Log"><a href="#第三步：檢查-HTTPERR-Log" class="headerlink" title="第三步：檢查 HTTPERR Log"></a>第三步：檢查 HTTPERR Log</h2><p>檢查：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">C:\Windows\System32\LogFiles\HTTPERR</span><br></pre></td></tr></table></figure>
+
+<p>HTTPERR 看到 LINE 來源 IP，結果是 <code>ClientCancel</code>。</p>
+<p>LINE 有連到伺服器，但 request 沒進 IIS。問題位置往 HTTP.sys、Schannel、TLS handshake 收斂。</p>
+<h2 id="第四步：Windows-Event-Viewer-的-Schannel-錯誤"><a href="#第四步：Windows-Event-Viewer-的-Schannel-錯誤" class="headerlink" title="第四步：Windows Event Viewer 的 Schannel 錯誤"></a>第四步：Windows Event Viewer 的 Schannel 錯誤</h2><p>Windows 事件檢視器看到 Schannel 錯誤：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">收到來自遠端用戶端應用程式的 TLS 1.2 連線要求，</span><br><span class="line">但伺服器不支援用戶端應用程式支援的加密套件。</span><br><span class="line">TLS 連線要求失敗。</span><br></pre></td></tr></table></figure>
+
+<p>這個訊息讓我先往 TLS Cipher Suite 查。</p>
+<h2 id="第五步：用-IIS-Crypto-檢查密碼套件"><a href="#第五步：用-IIS-Crypto-檢查密碼套件" class="headerlink" title="第五步：用 IIS Crypto 檢查密碼套件"></a>第五步：用 IIS Crypto 檢查密碼套件</h2><p>用 IIS Crypto 檢查 Windows Server 2019 的 TLS 設定，確認是否支援 ECDHE_RSA AES-GCM：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</span><br><span class="line">TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</span><br></pre></td></tr></table></figure>
+
+<p>調整後，LINE Verify 仍然失敗。</p>
+<h3 id="額外踩雷：IIS-Crypto-修改後導致連線異常"><a href="#額外踩雷：IIS-Crypto-修改後導致連線異常" class="headerlink" title="額外踩雷：IIS Crypto 修改後導致連線異常"></a>額外踩雷：IIS Crypto 修改後導致連線異常</h3><p>在 IIS Crypto 更新設定重開過好幾次，都沒有異常。<br>但某次 IIS Crypto 更新設定後再重開機，整台機器網路都連不上，也無法遠端進去。<br>只能再找負責伺服器的人，不透過遠端的方式，進去該伺服器，請他再打開 IIS Crypto，也只會跳錯誤。當下幾乎準備還原。</p>
+<p>最後有想從群組原則救回來：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Win + R</span><br><span class="line">gpedit.msc</span><br><span class="line">電腦設定</span><br><span class="line">系統管理範本</span><br><span class="line">網路</span><br><span class="line">SSL 設定</span><br><span class="line">SSL 密碼套件順序</span><br></pre></td></tr></table></figure>
+
+<p>把「SSL 密碼套件順序」設成「已啟用」後，優先權會大於 IIS Crypto 的修改。啟用後覆蓋原本設定，網路恢復正常。之後就不再往密碼套件的方向查找。</p>
+<p>到這裡，線索變成：</p>
+<ul>
+<li>LINE 來源 IP 只出現在 HTTPERR</li>
+<li>LINE 的 request 沒有出現在 IIS W3SVC log</li>
+<li>Windows Event Viewer 指向 Schannel &#x2F; TLS</li>
+<li>IIS Crypto 調整 Cipher 後仍然沒有解決</li>
+</ul>
+<p>LINE 的連線還沒進到 IIS Worker Process，問題位置可能在：</p>
+<ul>
+<li>HTTP.sys</li>
+<li>Schannel</li>
+<li>TLS handshake</li>
+<li>憑證驗證</li>
+<li>更前面的連線協商階段</li>
+</ul>
+<p>下一步改抓封包。</p>
+<h2 id="第六步：抓封包確認-LINE-實際卡在哪裡"><a href="#第六步：抓封包確認-LINE-實際卡在哪裡" class="headerlink" title="第六步：抓封包確認 LINE 實際卡在哪裡"></a>第六步：抓封包確認 LINE 實際卡在哪裡</h2><p>使用 <code>netsh trace</code> 抓 LINE Verify 當下的封包：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">netsh trace <span class="built_in">start</span> capture=yes report=no persistent=no tracefile=C:\temp\line_tls.etl</span><br></pre></td></tr></table></figure>
+
+<p>按下 LINE Developers 後台的 <code>Verify</code> 後停止 trace：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">netsh trace stop</span><br></pre></td></tr></table></figure>
+
+<p>拿到：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">C:\temp\line_tls.etl</span><br></pre></td></tr></table></figure>
+
+<p>再用 <code>etl2pcapng</code> 轉成 Wireshark 可以看的格式：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">.\etl2pcapng.exe .\extracted\report.etl .\line_tls.pcapng</span><br></pre></td></tr></table></figure>
+
+<p>最後用 Wireshark 開 <code>line_tls.pcapng</code>，再搭配 AI 協助判讀封包內容。</p>
+<p>LINE 來源 IP 有連到伺服器 443。</p>
+<p>ClientHello 內容：</p>
+<ul>
+<li>SNI：內部 API 子網域</li>
+<li>TLS 1.2 &#x2F; TLS 1.3 支援</li>
+<li>ALPN：<code>h2</code> &#x2F; <code>http/1.1</code></li>
+<li>ECDHE_RSA AES-GCM 類型的 Cipher Suites</li>
+</ul>
+<p>ServerHello 成功選到：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">TLS 1.2</span><br><span class="line">TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</span><br><span class="line">ALPN: h2</span><br></pre></td></tr></table></figure>
+
+<p>這代表 TLS version、Cipher Suite、SNI、ALPN 都不是主要問題。</p>
+<p>LINE 在收到 Server Certificate 之後，就中止了 TLS 連線，沒有繼續完成 handshake，也沒有送出 HTTP POST。</p>
+<p>HTTP request 沒送出，IIS access log 自然不會有紀錄。</p>
+<p>到這一步，我才回頭確認公司前陣子確實有更換過 SSL 憑證，問題才和憑證鏈串起來。</p>
+<h2 id="真正可疑的地方：憑證鏈"><a href="#真正可疑的地方：憑證鏈" class="headerlink" title="真正可疑的地方：憑證鏈"></a>真正可疑的地方：憑證鏈</h2><p>原本的憑證鏈是：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">CN=&lt;company-wildcard-domain&gt;</span><br></pre></td></tr></table></figure>
+
+<p>瀏覽器打得開，外部測試工具看起來也正常，但 LINE Webhook client 沒完成 TLS handshake。</p>
+<p>這次封包看到的現象是：</p>
+<ol>
+<li>LINE ClientHello 正常。</li>
+<li>ServerHello 正常。</li>
+<li>Cipher、TLS version、ALPN 都選成功。</li>
+<li>Server Certificate 送出後，LINE 中止 TLS。</li>
+<li>LINE 沒有送 HTTP POST。</li>
+</ol>
+<p>當時比較合理的懷疑是：LINE Webhook client 對原本那條憑證鏈，可能存在 trust store 或 path building 相容性問題。</p>
+<p>這裡不能直接寫成「LINE 不信任某家 CA」。比較精準的說法是：這台 server、這個 binding、這張憑證鏈的組合下，LINE Webhook client 沒有完成 TLS handshake。</p>
+<h2 id="A-B-測試：只把-API-子網域換成-Let’s-Encrypt"><a href="#A-B-測試：只把-API-子網域換成-Let’s-Encrypt" class="headerlink" title="A&#x2F;B 測試：只把 API 子網域換成 Let’s Encrypt"></a>A&#x2F;B 測試：只把 API 子網域換成 Let’s Encrypt</h2><p>為了確認是不是憑證問題，又不影響其他服務，只調整內部 API 子網域的 IIS binding。</p>
+<p>用 win-acme 申請 Let’s Encrypt 憑證，只套用在 Webhook 對應的 IIS 站台。</p>
+<p>IIS Binding 改成 Let’s Encrypt 後，LINE Webhook Verify 立即恢復正常。</p>
+<p>到這一步就能確認，問題不是 Webhook 程式、IIS routing、TLS Cipher 或防火牆，而是原本那張憑證或憑證鏈在 LINE Webhook client 上的相容性問題。</p>
+<h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><p>這次最容易誤判的地方，是外部測試其實會通。</p>
+<p>我用 Linode 從外網打 webhook 可以進 IIS，瀏覽器和一般測試工具看起來也正常。再加上 Windows Event Viewer 的 Schannel 錯誤指向 Cipher Suite，所以一開始根本不會想到是 SSL 憑證鏈。</p>
+<p>真正把方向拉回來的是封包：</p>
+<ul>
+<li>LINE 有連到 443</li>
+<li>ClientHello 有帶 SNI</li>
+<li>ServerHello 成功選到 TLS 1.2、ECDHE_RSA AES-GCM、h2</li>
+<li>LINE 收到 Server Certificate 後中止 TLS</li>
+<li>HTTP POST 沒送出，所以 IIS access log 沒紀錄</li>
+</ul>
+<p>我不能直接下結論說某家 CA 一定有問題。比較精準的說法是：原本那條憑證鏈在瀏覽器和一般外部測試都正常，但 LINE Webhook Verify 沒有完成 TLS handshake；只把 webhook 對應站台改成 Let’s Encrypt 後，LINE Verify 立即恢復，因此可以確認問題就在原憑證或憑證鏈相容性。</p>
+<p>所以這次的經驗是：Webhook client 的 TLS 行為不一定跟瀏覽器或一般 curl 測試一致。當 IIS 沒 log、HTTPERR 有 <code>ClientCancel</code>、Schannel 又只給模糊錯誤時，最後還是要靠封包確認連線到底停在哪一段。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/LINE/" rel="tag"># LINE</a>
+              <a href="/tags/Webhook/" rel="tag"># Webhook</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/04/10/20260410/" rel="prev" title="AWS Bedrock Tool Use：讓 AI 自己決定要呼叫什麼工具">
+                  <i class="fa fa-angle-left"></i> AWS Bedrock Tool Use：讓 AI 自己決定要呼叫什麼工具
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Ian</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"haogooday","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
